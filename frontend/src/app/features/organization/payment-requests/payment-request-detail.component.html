@@ -1,0 +1,220 @@
+<app-navbar></app-navbar>
+<app-sidebar></app-sidebar>
+
+<div class="container">
+  <!-- Header -->
+  <div class="page-header">
+    <div>
+      <h1>Payment Request Details</h1>
+      <p>Request ID: #{{ requestId }}</p>
+    </div>
+    <a routerLink="/organization/payment-requests" class="btn btn-secondary">
+      ← Back to List
+    </a>
+  </div>
+
+  <!-- Loading State -->
+  <div *ngIf="loading" class="loading-state">
+    <div class="spinner"></div>
+    <p>Loading payment request details...</p>
+  </div>
+
+  <!-- Payment Request Details -->
+  <div *ngIf="!loading && paymentRequest" class="details-container">
+    
+    <!-- Status Card -->
+    <div class="card status-card">
+      <div class="status-header">
+        <div class="status-icon">
+          {{ getStatusIcon(paymentRequest.status) }}
+        </div>
+        <div>
+          <h3>Request Status</h3>
+          <span class="badge large" [ngClass]="getStatusClass(paymentRequest.status)">
+            {{ paymentRequest.status }}
+          </span>
+        </div>
+      </div>
+    </div>
+
+    <!-- Request Information -->
+    <div class="card">
+      <div class="card-header">
+        <h3>Request Information</h3>
+      </div>
+
+      <div class="info-grid">
+        <div class="info-item">
+          <label>Request ID</label>
+          <p>#{{ paymentRequest.id }}</p>
+        </div>
+
+        <div class="info-item">
+          <label>Request Type</label>
+          <p class="type-badge">{{ paymentRequest.requestType }}</p>
+        </div>
+
+        <div class="info-item">
+          <label>Payment Period</label>
+          <p><strong>{{ paymentRequest.month }} {{ paymentRequest.year }}</strong></p>
+        </div>
+
+        <div class="info-item">
+          <label>Employee Count</label>
+          <p *ngIf="paymentRequest.employeeCount">{{ paymentRequest.employeeCount }} employees</p>
+          <p *ngIf="!paymentRequest.employeeCount">-</p>
+        </div>
+
+        <div class="info-item">
+          <label>Total Amount</label>
+          <p class="amount-large">₹{{ paymentRequest.totalAmount | number:'1.2-2' }}</p>
+        </div>
+
+        <div class="info-item">
+          <label>Created Date</label>
+          <p>{{ paymentRequest.createdAt | date: 'dd MMM yyyy, hh:mm a' }}</p>
+        </div>
+
+        <div class="info-item full-width" *ngIf="paymentRequest.remarks">
+          <label>Remarks</label>
+          <p>{{ paymentRequest.remarks }}</p>
+        </div>
+      </div>
+    </div>
+
+    
+
+    <!-- Approval Information (if approved) -->
+    <div class="card" *ngIf="paymentRequest.status === PaymentRequestStatus.APPROVED || 
+                              paymentRequest.status === PaymentRequestStatus.COMPLETED">
+      <div class="card-header success">
+        <h3>✓ Approval Information</h3>
+      </div>
+
+      <div class="info-grid">
+        <div class="info-item">
+          <label>Approved By</label>
+          <p *ngIf="paymentRequest.approvedByName">{{ paymentRequest.approvedByName }}</p>
+          <p *ngIf="!paymentRequest.approvedByName">Bank Admin</p>
+        </div>
+
+        <div class="info-item">
+          <label>Approved Date</label>
+          <p *ngIf="paymentRequest.approvedAt">
+            {{ paymentRequest.approvedAt | date: 'dd MMM yyyy, hh:mm a' }}
+          </p>
+          <p *ngIf="!paymentRequest.approvedAt">-</p>
+        </div>
+      </div>
+    </div>
+
+    <!-- Rejection Information (if rejected) -->
+    <div class="card rejection-card" *ngIf="paymentRequest.status === PaymentRequestStatus.REJECTED">
+      <div class="card-header danger">
+        <h3>✗ Rejection Information</h3>
+      </div>
+
+      <div class="info-grid">
+        <div class="info-item full-width">
+          <label>Rejection Reason</label>
+          <p class="rejection-reason">
+            {{ paymentRequest.rejectionReason || 'No reason provided' }}
+          </p>
+        </div>
+
+        <div class="info-item">
+          <label>Rejected By</label>
+          <p *ngIf="paymentRequest.approvedByName">{{ paymentRequest.approvedByName }}</p>
+          <p *ngIf="!paymentRequest.approvedByName">Bank Admin</p>
+        </div>
+
+        <div class="info-item">
+          <label>Rejected Date</label>
+          <p *ngIf="paymentRequest.approvedAt">
+            {{ paymentRequest.approvedAt | date: 'dd MMM yyyy, hh:mm a' }}
+          </p>
+        </div>
+      </div>
+    </div>
+
+    <!-- Timeline -->
+<div class="card">
+  <div class="card-header">
+    <h3>Request Timeline</h3>
+  </div>
+
+  <div class="timeline">
+    <!-- Step 1: Request Created (Always completed) -->
+    <div class="timeline-item completed">
+      <div class="timeline-dot"></div>
+      <div class="timeline-content">
+        <h4>Request Created</h4>
+        <p>{{ paymentRequest.createdAt | date: 'dd MMM yyyy, hh:mm a' }}</p>
+      </div>
+    </div>
+
+    <!-- Step 2: Under Review (Completed if not pending) -->
+    <div class="timeline-item" 
+         [class.completed]="paymentRequest.status !== PaymentRequestStatus.PENDING">
+      <div class="timeline-dot"></div>
+      <div class="timeline-content">
+        <h4>Under Review</h4>
+        <p *ngIf="paymentRequest.status === PaymentRequestStatus.PENDING">Waiting for approval</p>
+        <p *ngIf="paymentRequest.status !== PaymentRequestStatus.PENDING">Reviewed by Bank Admin</p>
+      </div>
+    </div>
+
+    <!-- ⭐ Step 3a: Approved (Only show if NOT rejected) -->
+    <div class="timeline-item" 
+         *ngIf="paymentRequest.status !== PaymentRequestStatus.REJECTED"
+         [class.completed]="paymentRequest.status === PaymentRequestStatus.APPROVED || 
+                            paymentRequest.status === PaymentRequestStatus.PROCESSING ||
+                            paymentRequest.status === PaymentRequestStatus.COMPLETED">
+      <div class="timeline-dot"></div>
+      <div class="timeline-content">
+        <h4>Approved</h4>
+        <p *ngIf="paymentRequest.approvedAt">
+          {{ paymentRequest.approvedAt | date: 'dd MMM yyyy, hh:mm a' }}
+        </p>
+        <p *ngIf="!paymentRequest.approvedAt && paymentRequest.status === PaymentRequestStatus.PENDING">
+          Pending approval
+        </p>
+      </div>
+    </div>
+
+    <!-- ⭐ Step 3b: Rejected (Only show if REJECTED) -->
+    <div class="timeline-item rejected" 
+         *ngIf="paymentRequest.status === PaymentRequestStatus.REJECTED"
+         [class.completed]="paymentRequest.status === PaymentRequestStatus.REJECTED">
+      <div class="timeline-dot"></div>
+      <div class="timeline-content">
+        <h4>Rejected</h4>
+        <p *ngIf="paymentRequest.approvedAt">
+          {{ paymentRequest.approvedAt | date: 'dd MMM yyyy, hh:mm a' }}
+        </p>
+        <p *ngIf="paymentRequest.rejectionReason" class="rejection-reason-timeline">
+          <strong>Reason:</strong> {{ paymentRequest.rejectionReason }}
+        </p>
+      </div>
+    </div>
+
+    <!-- Step 4: Payment Completed (Only show if NOT rejected) -->
+    <div class="timeline-item" 
+         *ngIf="paymentRequest.status !== PaymentRequestStatus.REJECTED"
+         [class.completed]="paymentRequest.status === PaymentRequestStatus.COMPLETED">
+      <div class="timeline-dot"></div>
+      <div class="timeline-content">
+        <h4>Payment Completed</h4>
+        <p *ngIf="paymentRequest.status === PaymentRequestStatus.COMPLETED">
+          {{ paymentRequest.updatedAt | date: 'dd MMM yyyy, hh:mm a' }}
+        </p>
+        <p *ngIf="paymentRequest.status !== PaymentRequestStatus.COMPLETED">
+          Waiting for completion
+        </p>
+      </div>
+    </div>
+  </div>
+</div>
+
+  </div>
+</div>

@@ -1,0 +1,202 @@
+<app-navbar></app-navbar>
+<app-sidebar></app-sidebar>
+
+<div class="container">
+  <!-- Header -->
+  <div class="page-header">
+    <div>
+      <h1>Salary Structure</h1>
+      <p *ngIf="employeeName">Employee: {{ employeeName }}</p>
+    </div>
+    <div class="header-actions">
+      <a 
+        [routerLink]="['/organization/salary-structure/create', employeeId]" 
+        class="btn btn-primary">
+        + Create New Structure
+      </a>
+      <a 
+        [routerLink]="['/organization/salary-structure']" 
+        class="btn btn-secondary">
+        ← Back to Overview
+      </a>
+    </div>
+  </div>
+
+  <!-- Loading State -->
+  <div *ngIf="loading" class="loading-state">
+    <div class="spinner"></div>
+    <p>Loading salary structures...</p>
+  </div>
+
+  <!-- Active Salary Structure -->
+  <div *ngIf="!loading && activeSalary" class="card highlight-card">
+    <div class="card-header">
+      <h3>Active Salary Structure</h3>
+      <span class="badge badge-success">ACTIVE</span>
+    </div>
+
+    <div class="salary-details">
+      <div class="salary-grid">
+        <div class="salary-item">
+          <label>Basic Salary</label>
+          <p class="amount">₹{{ activeSalary.basicSalary | number:'1.2-2' }}</p>
+        </div>
+
+        <div class="salary-item">
+          <label>HRA</label>
+          <p class="amount">₹{{ activeSalary.hra | number:'1.2-2' }}</p>
+        </div>
+
+        <div class="salary-item">
+          <label>Dearness Allowance</label>
+          <p class="amount">₹{{ activeSalary.dearnessAllowance | number:'1.2-2' }}</p>
+        </div>
+
+        <div class="salary-item">
+          <label>Other Allowances</label>
+          <p class="amount">₹{{ activeSalary.otherAllowances | number:'1.2-2' }}</p>
+        </div>
+
+        <div class="salary-item highlight">
+          <label>Gross Salary</label>
+          <p class="amount-large">₹{{ activeSalary.grossSalary | number:'1.2-2' }}</p>
+        </div>
+
+        <div class="salary-item">
+          <label>Provident Fund</label>
+          <p class="amount deduction">- ₹{{ activeSalary.providentFund | number:'1.2-2' }}</p>
+        </div>
+
+        <div class="salary-item highlight success">
+          <label>Net Salary</label>
+          <p class="amount-large">₹{{ activeSalary.netSalary | number:'1.2-2' }}</p>
+        </div>
+
+        <div class="salary-item">
+          <label>Effective From</label>
+          <p>{{ activeSalary.effectiveFrom | date: 'dd MMM yyyy' }}</p>
+        </div>
+      </div>
+
+      <div class="action-row">
+        <a 
+          [routerLink]="['/organization/salary-structure/edit', activeSalary.id]" 
+          class="btn btn-primary">
+          Edit Structure
+        </a>
+        <button 
+          (click)="deactivateSalary(activeSalary.id)" 
+          class="btn btn-danger">
+          Deactivate
+        </button>
+      </div>
+    </div>
+  </div>
+
+  <!-- No Active Salary -->
+  <div *ngIf="!loading && !activeSalary" class="card">
+    <div class="empty-state">
+      <div class="empty-icon">💰</div>
+      <h3>No Active Salary Structure</h3>
+      <p>Create a salary structure for this employee</p>
+      <a 
+        [routerLink]="['/organization/salary-structure/create', employeeId]" 
+        class="btn btn-primary">
+        Create Salary Structure
+      </a>
+    </div>
+  </div>
+
+  <!-- Salary History -->
+  <div *ngIf="!loading && salaryStructures.length > 1" class="card">
+    <div class="card-header">
+      <h3>📜 Salary History</h3>
+      <p style="font-size: 14px; color: #666; margin: 5px 0 0 0;">
+        Click on any inactive salary to view details
+      </p>
+    </div>
+
+    <div class="history-list">
+      <div 
+        class="history-item" 
+        *ngFor="let salary of salaryStructures"
+        [class.inactive]="!salary.isActive"
+        [class.expanded]="isExpanded(salary.id)">
+        
+        <div class="history-info">
+          <div class="history-header">
+            <h4>₹{{ salary.netSalary | number:'1.2-2' }}/month</h4>
+            <span 
+              class="badge" 
+              [class.badge-success]="salary.isActive"
+              [class.badge-secondary]="!salary.isActive">
+              {{ salary.isActive ? 'ACTIVE' : 'INACTIVE' }}
+            </span>
+          </div>
+          <p class="history-date">
+            Effective from: {{ salary.effectiveFrom | date: 'dd MMM yyyy' }}
+          </p>
+          
+          <!-- Quick Breakdown (Always visible) -->
+          <div class="breakdown">
+            <span>Basic: ₹{{ salary.basicSalary | number:'1.0-0' }}</span>
+            <span>HRA: ₹{{ salary.hra | number:'1.0-0' }}</span>
+            <span>DA: ₹{{ salary.dearnessAllowance | number:'1.0-0' }}</span>
+            <span>PF: -₹{{ salary.providentFund | number:'1.0-0' }}</span>
+          </div>
+
+          <!-- Detailed Breakdown (Expandable) -->
+          <div *ngIf="!salary.isActive && isExpanded(salary.id)" class="detailed-breakdown">
+            <div class="detail-grid">
+              <div class="detail-item earnings">
+                <h5>💰 Earnings</h5>
+                <div class="detail-row">
+                  <span>Basic Salary:</span>
+                  <strong>₹{{ salary.basicSalary | number:'1.2-2' }}</strong>
+                </div>
+                <div class="detail-row">
+                  <span>HRA:</span>
+                  <strong>₹{{ salary.hra | number:'1.2-2' }}</strong>
+                </div>
+                <div class="detail-row">
+                  <span>Dearness Allowance:</span>
+                  <strong>₹{{ salary.dearnessAllowance | number:'1.2-2' }}</strong>
+                </div>
+                <div class="detail-row">
+                  <span>Other Allowances:</span>
+                  <strong>₹{{ salary.otherAllowances | number:'1.2-2' }}</strong>
+                </div>
+                <div class="detail-row total">
+                  <span>Gross Salary:</span>
+                  <strong>₹{{ salary.grossSalary | number:'1.2-2' }}</strong>
+                </div>
+              </div>
+
+              <div class="detail-item deductions">
+                <h5>📉 Deductions</h5>
+                <div class="detail-row">
+                  <span>Provident Fund:</span>
+                  <strong class="deduction">-₹{{ salary.providentFund | number:'1.2-2' }}</strong>
+                </div>
+                <div class="detail-row total net">
+                  <span>Net Salary:</span>
+                  <strong>₹{{ salary.netSalary | number:'1.2-2' }}</strong>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <div class="history-actions" *ngIf="!salary.isActive">
+          <!-- Toggle Details Button -->
+          <button 
+            class="btn-view" 
+            (click)="toggleDetails(salary.id)"
+            [title]="isExpanded(salary.id) ? 'Hide Details' : 'View Details'">
+            {{ isExpanded(salary.id) ? '▲' : '👁️' }}
+          </button>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>

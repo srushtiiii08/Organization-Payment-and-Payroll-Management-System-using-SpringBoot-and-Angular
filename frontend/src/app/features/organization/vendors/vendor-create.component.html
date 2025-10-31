@@ -1,0 +1,274 @@
+<app-navbar></app-navbar>
+<app-sidebar></app-sidebar>
+
+<div class="main-content">
+  <div class="container">
+    <!-- Header -->
+    <div class="page-header">
+      <div>
+        <h1>Add New Vendor</h1>
+        <p>Register a new service vendor</p>
+      </div>
+      <button class="btn btn-secondary" (click)="cancel()">
+        ← Back
+      </button>
+    </div>
+
+    <!-- Form Card -->
+    <div class="card">
+      <form [formGroup]="vendorForm" (ngSubmit)="onSubmit()">
+        
+        <!-- Basic Information -->
+        <div class="form-section">
+          <h3 class="section-title">Basic Information</h3>
+          
+          <div class="form-row">
+            <div class="form-group">
+              <label class="form-label" for="name">
+                Vendor Name <span class="required">*</span>
+              </label>
+              <input 
+                type="text" 
+                id="name"
+                class="form-control" 
+                formControlName="name"
+                placeholder="Enter vendor name"
+                [class.error]="f['name'].invalid && f['name'].touched">
+              
+              <div class="error-message" *ngIf="f['name'].invalid && f['name'].touched">
+                <span *ngIf="f['name'].errors?.['required']">Vendor name is required</span>
+                <span *ngIf="f['name'].errors?.['minlength']">Name must be at least 2 characters</span>
+              </div>
+            </div>
+
+            <div class="form-group">
+              <label class="form-label" for="serviceType">
+                Service Type <span class="required">*</span>
+              </label>
+              <select 
+                id="serviceType"
+                class="form-control" 
+                formControlName="serviceType"
+                [class.error]="f['serviceType'].invalid && f['serviceType'].touched">
+                <option value="">Select Service Type</option>
+                <option *ngFor="let type of serviceTypes" [value]="type">{{ type }}</option>
+              </select>
+              
+              <div class="error-message" *ngIf="f['serviceType'].invalid && f['serviceType'].touched">
+                <span *ngIf="f['serviceType'].errors?.['required']">Service type is required</span>
+              </div>
+            </div>
+          </div>
+
+          <div class="form-row">
+            <div class="form-group">
+              <label class="form-label" for="email">
+                Email Address <span class="required">*</span>
+              </label>
+              <input 
+                type="email" 
+                id="email"
+                class="form-control" 
+                formControlName="email"
+                placeholder="vendor@example.com"
+                [class.error]="f['email'].invalid && f['email'].touched">
+              
+              <div class="error-message" *ngIf="f['email'].invalid && f['email'].touched">
+                <span *ngIf="f['email'].errors?.['required']">Email is required</span>
+                <span *ngIf="f['email'].errors?.['email']">Invalid email format</span>
+              </div>
+            </div>
+
+            <div class="form-group">
+              <label class="form-label" for="phone">
+                Phone Number <span class="required">*</span>
+              </label>
+              <input 
+                type="tel" 
+                id="phone"
+                class="form-control" 
+                formControlName="phone"
+                placeholder="10-digit phone number"
+                [class.error]="f['phone'].invalid && f['phone'].touched">
+              
+              <div class="error-message" *ngIf="f['phone'].invalid && f['phone'].touched">
+                <span *ngIf="f['phone'].errors?.['required']">Phone is required</span>
+                <span *ngIf="f['phone'].errors?.['pattern']">Phone must be 10 digits</span>
+              </div>
+            </div>
+          </div>
+
+          <div class="form-group">
+            <label class="form-label" for="address">
+              Address <span class="required">*</span>
+            </label>
+            <textarea 
+              id="address"
+              class="form-control" 
+              formControlName="address"
+              placeholder="Enter vendor address"
+              rows="3"
+              [class.error]="f['address'].invalid && f['address'].touched">
+            </textarea>
+            
+            <div class="error-message" *ngIf="f['address'].invalid && f['address'].touched">
+              <span *ngIf="f['address'].errors?.['required']">Address is required</span>
+            </div>
+          </div>
+        </div>
+
+        <!-- Bank Details -->
+        <div class="form-section">
+          <h3 class="section-title">Bank Account Details</h3>
+          
+          <div class="form-row">
+            <div class="form-group">
+              <label class="form-label" for="bankName">
+                Bank Name <span class="required">*</span>
+              </label>
+              <input 
+                type="text" 
+                id="bankName"
+                class="form-control" 
+                formControlName="bankName"
+                placeholder="Enter bank name"
+                [class.error]="f['bankName'].invalid && f['bankName'].touched">
+              
+              <div class="error-message" *ngIf="f['bankName'].invalid && f['bankName'].touched">
+                <span *ngIf="f['bankName'].errors?.['required']">Bank name is required</span>
+              </div>
+            </div>
+
+            <div class="form-group">
+              <label class="form-label" for="bankAccountNumber">
+                Account Number <span class="required">*</span>
+              </label>
+              <input 
+                type="text" 
+                id="bankAccountNumber"
+                class="form-control" 
+                formControlName="bankAccountNumber"
+                placeholder="9-18 digit account number"
+                [class.error]="f['bankAccountNumber'].invalid && f['bankAccountNumber'].touched">
+              
+              <div class="error-message" *ngIf="f['bankAccountNumber'].invalid && f['bankAccountNumber'].touched">
+                <span *ngIf="f['bankAccountNumber'].errors?.['required']">Account number is required</span>
+                <span *ngIf="f['bankAccountNumber'].errors?.['pattern']">Account number must be 9-18 digits</span>
+              </div>
+            </div>
+          </div>
+
+          <div class="form-group">
+            <label class="form-label" for="ifscCode">
+              IFSC Code <span class="required">*</span>
+            </label>
+            <input 
+              type="text" 
+              id="ifscCode"
+              class="form-control" 
+              formControlName="ifscCode"
+              placeholder="e.g., SBIN0001234"
+              style="text-transform: uppercase;"
+              [class.error]="f['ifscCode'].invalid && f['ifscCode'].touched">
+            
+            <div class="error-message" *ngIf="f['ifscCode'].invalid && f['ifscCode'].touched">
+              <span *ngIf="f['ifscCode'].errors?.['required']">IFSC code is required</span>
+              <span *ngIf="f['ifscCode'].errors?.['pattern']">Invalid IFSC format</span>
+            </div>
+          </div>
+        </div>
+
+        <!-- Tax Details -->
+        <div class="form-section">
+          <h3 class="section-title">Tax Details</h3>
+          
+          <div class="form-row">
+            <div class="form-group">
+              <label class="form-label" for="panNumber">
+                PAN Number <span class="required">*</span>
+              </label>
+              <input 
+                type="text" 
+                id="panNumber"
+                class="form-control" 
+                formControlName="panNumber"
+                placeholder="e.g., ABCDE1234F"
+                style="text-transform: uppercase;"
+                [class.error]="f['panNumber'].invalid && f['panNumber'].touched">
+              
+              <div class="error-message" *ngIf="f['panNumber'].invalid && f['panNumber'].touched">
+                <span *ngIf="f['panNumber'].errors?.['required']">PAN number is required</span>
+                <span *ngIf="f['panNumber'].errors?.['pattern']">Invalid PAN format (e.g., ABCDE1234F)</span>
+              </div>
+            </div>
+
+            <div class="form-group">
+              <label class="form-label" for="gstNumber">
+                GST Number (Optional)
+              </label>
+              <input 
+                type="text" 
+                id="gstNumber"
+                class="form-control" 
+                formControlName="gstNumber"
+                placeholder="15-digit GST number"
+                style="text-transform: uppercase;"
+                [class.error]="f['gstNumber'].invalid && f['gstNumber'].touched">
+              
+              <div class="error-message" *ngIf="f['gstNumber'].invalid && f['gstNumber'].touched">
+                <span *ngIf="f['gstNumber'].errors?.['pattern']">Invalid GST format</span>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <!-- Contract Details -->
+        <div class="form-section">
+          <h3 class="section-title">Contract Details</h3>
+          
+          <div class="form-row">
+            <div class="form-group">
+              <label class="form-label" for="contractStartDate">
+                Contract Start Date <span class="required">*</span>
+              </label>
+              <input 
+                type="date" 
+                id="contractStartDate"
+                class="form-control" 
+                formControlName="contractStartDate"
+                [class.error]="f['contractStartDate'].invalid && f['contractStartDate'].touched">
+              
+              <div class="error-message" *ngIf="f['contractStartDate'].invalid && f['contractStartDate'].touched">
+                <span *ngIf="f['contractStartDate'].errors?.['required']">Contract start date is required</span>
+              </div>
+            </div>
+
+            <div class="form-group">
+              <label class="form-label" for="contractEndDate">
+                Contract End Date (Optional)
+              </label>
+              <input 
+                type="date" 
+                id="contractEndDate"
+                class="form-control" 
+                formControlName="contractEndDate">
+            </div>
+          </div>
+        </div>
+
+        <!-- Form Actions -->
+        <div class="form-actions">
+          <button type="button" class="btn btn-secondary" (click)="cancel()">
+            Cancel
+          </button>
+          <button type="submit" class="btn btn-primary" [disabled]="loading">
+            <span *ngIf="!loading">Create Vendor</span>
+            <span *ngIf="loading">Creating...</span>
+          </button>
+        </div>
+      </form>
+    </div>
+
+    <app-loader *ngIf="loading"></app-loader>
+  </div>
+</div>

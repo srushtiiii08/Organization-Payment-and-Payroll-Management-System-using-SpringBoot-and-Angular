@@ -1,0 +1,135 @@
+<app-navbar></app-navbar>
+<app-sidebar></app-sidebar>
+
+<div class="main-content">
+  <div class="container">
+    <!-- Header -->
+    <div class="page-header">
+      <div>
+        <h1>Salary History</h1>
+        <p>View your payment history and download salary slips</p>
+      </div>
+
+      <!-- Year Filter -->
+      <select class="year-select" [(ngModel)]="selectedYear" (change)="onYearChange()">
+        <option *ngFor="let year of years" [value]="year">{{ year }}</option>
+      </select>
+    </div>
+
+    <!-- Stats -->
+    <div class="stats-card">
+      <div class="stat-item">
+        <label>Total Payments</label>
+        <h3>{{ salaryPayments.length }}</h3>
+      </div>
+      <div class="stat-item highlight">
+        <label>Total Earned ({{ selectedYear }})</label>
+        <h3>₹{{ totalEarned | number:'1.2-2' }}</h3>
+      </div>
+    </div>
+
+    <!-- Loading -->
+    <div *ngIf="loading" class="loading-state">
+      <div class="spinner"></div>
+      <p>Loading salary history...</p>
+    </div>
+
+    <!-- Empty State -->
+    <div *ngIf="!loading && salaryPayments.length === 0" class="empty-state">
+      <div class="empty-icon">💰</div>
+      <h3>No Salary Payments</h3>
+      <p>No salary payments found for {{ selectedYear }}</p>
+    </div>
+
+    <!-- Salary List -->
+    <div *ngIf="!loading && salaryPayments.length > 0" class="salary-list">
+      <div class="salary-card" *ngFor="let payment of salaryPayments">
+        <div class="salary-header">
+          <div>
+            <h4>{{ payment.month }} {{ payment.year }}</h4>
+            <p class="payment-date">
+              Paid on: {{ payment.paymentDate | date: 'dd MMM yyyy' }}
+            </p>
+          </div>
+          <span class="badge" [ngClass]="getStatusClass(payment.status)">
+            {{ payment.status }}
+          </span>
+        </div>
+
+        <!-- <div class="salary-details">
+          <div class="detail-row">
+            <label>Basic Salary:</label>
+            <p>₹{{ payment.basicSalary | number:'1.2-2' }}</p>
+          </div>
+          <div class="detail-row">
+            <label>HRA:</label>
+            <p>₹{{ payment.hra | number:'1.2-2' }}</p>
+          </div>
+          <div class="detail-row">
+            <label>Dearness Allowance:</label>
+            <p>₹{{ payment.dearnessAllowance | number:'1.2-2' }}</p>
+          </div>
+          <div class="detail-row">
+            <label>Other Allowances:</label>
+            <p>₹{{ payment.otherAllowances | number:'1.2-2' }}</p>
+          </div>
+          <div class="detail-row highlight">
+            <label>Gross Salary:</label>
+            <p>₹{{ payment.grossSalary | number:'1.2-2' }}</p>
+          </div>
+          <div class="detail-row deduction">
+            <label>Provident Fund:</label>
+            <p>- ₹{{ payment.providentFund | number:'1.2-2' }}</p>
+          </div>
+          <div class="detail-row total">
+            <label>Net Salary:</label>
+            <p class="net-amount">₹{{ payment.netSalary | number:'1.2-2' }}</p>
+          </div>
+        </div> -->
+
+       <div class="salary-details">
+  <div class="detail-row">
+    <label>Basic Salary:</label>
+    <p>₹{{ payment.basicSalary || 0 | number:'1.2-2' }}</p>
+  </div>
+  <div class="detail-row">
+    <label>HRA:</label>
+    <p>₹{{ payment.hra || 0 | number:'1.2-2' }}</p>
+  </div>
+  <div class="detail-row">
+    <label>Dearness Allowance:</label>
+    <p>₹{{ payment.dearnessAllowance || 0 | number:'1.2-2' }}</p>
+  </div>
+  <div class="detail-row">
+    <label>Other Allowances:</label>
+    <p>₹{{ payment.otherAllowances || 0 | number:'1.2-2' }}</p>
+  </div>
+  <div class="detail-row highlight">
+    <label>Gross Salary:</label>
+    <p>₹{{ payment.grossSalary || 0 | number:'1.2-2' }}</p>
+  </div>
+  <div class="detail-row deduction">
+    <label>Provident Fund:</label>
+    <p>- ₹{{ payment.providentFund || 0 | number:'1.2-2' }}</p>
+  </div>
+  <div class="detail-row total">
+    <label>Net Salary:</label>
+    <p class="net-amount">₹{{ payment.netSalary || 0 | number:'1.2-2' }}</p>
+  </div>
+</div>
+
+        <div class="salary-actions" *ngIf="payment.status === 'COMPLETED'">
+          <button 
+            class="btn btn-download" 
+            *ngIf="payment.salarySlipUrl"
+            (click)="downloadSalarySlip(payment)">
+            📄 Download Salary Slip
+          </button>
+          <span *ngIf="!payment.salarySlipUrl" class="text-muted">
+            Salary slip not available
+          </span>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>

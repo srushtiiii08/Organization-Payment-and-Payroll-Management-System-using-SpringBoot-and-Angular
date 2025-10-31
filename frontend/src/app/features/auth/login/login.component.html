@@ -1,0 +1,151 @@
+<div class="login-container">
+  <div class="login-card">
+    <!-- Header -->
+    <div class="login-header">
+      <h1>Payroll Management System</h1>
+      <p>Sign in to your account</p>
+    </div>
+
+    <!-- Login Form -->
+    <form [formGroup]="loginForm" (ngSubmit)="onSubmit()">
+      
+      <!-- Email Field -->
+      <div class="form-group">
+        <label class="form-label" for="email">
+          Email Address <span class="required">*</span>
+        </label>
+        <input 
+          type="email" 
+          id="email"
+          class="form-control" 
+          formControlName="email"
+          placeholder="Enter your email"
+          [class.error]="f['email'].invalid && f['email'].touched">
+        
+        <div class="error-message" *ngIf="f['email'].invalid && f['email'].touched">
+          <span *ngIf="f['email'].errors?.['required']">Email is required</span>
+          <span *ngIf="f['email'].errors?.['email']">Invalid email format</span>
+        </div>
+      </div>
+
+      <!-- Password Field -->
+      <div class="form-group">
+        <label class="form-label" for="password">
+          Password <span class="required">*</span>
+        </label>
+        <div class="password-wrapper">
+          <input 
+            [type]="showPassword ? 'text' : 'password'"
+            id="password"
+            class="form-control" 
+            formControlName="password"
+            placeholder="Enter your password"
+            [class.error]="f['password'].invalid && f['password'].touched">
+          
+          <button 
+            type="button" 
+            class="toggle-password"
+            (click)="togglePasswordVisibility()">
+            {{ showPassword ? '👁️' : '👁️‍🗨️' }}
+          </button>
+        </div>
+
+        <div class="error-message" *ngIf="f['password'].invalid && f['password'].touched">
+          <span *ngIf="f['password'].errors?.['required']">Password is required</span>
+          <span *ngIf="f['password'].errors?.['minlength']">
+            Password must be at least 6 characters
+          </span>
+        </div>
+
+        <!-- 🆕 NEW: Forgot Password Link -->
+        <div class="forgot-password-link">
+          <a routerLink="/forgot-password">Forgot Password?</a>
+        </div>
+
+        <!-- ✅ IMAGE-BASED CAPTCHA Field -->
+<div class="form-group">
+  <label class="form-label" for="captcha">
+    Security Verification <span class="required">*</span>
+  </label>
+  
+  <div class="captcha-container">
+    <!-- CAPTCHA Image Display -->
+    <div class="captcha-image-box">
+      <!-- Loading State -->
+      <div class="captcha-loading" *ngIf="loadingCaptcha">
+        <span class="spinner"></span>
+        <span>Loading CAPTCHA...</span>
+      </div>
+
+      <!-- CAPTCHA Image -->
+      <div class="captcha-image-wrapper" *ngIf="!loadingCaptcha && captchaImageData">
+        <img 
+          [src]="captchaImageData" 
+          alt="CAPTCHA" 
+          class="captcha-image">
+      </div>
+      
+      <!-- Refresh Button -->
+      <button 
+        type="button" 
+        class="captcha-refresh"
+        (click)="refreshCaptcha()"
+        [disabled]="loadingCaptcha"
+        title="Refresh CAPTCHA">
+        🔄
+      </button>
+    </div>
+
+    <!-- CAPTCHA Answer Input -->
+    <input 
+      type="text" 
+      id="captcha"
+      class="form-control" 
+      formControlName="captchaAnswer"
+      placeholder="Type the code above"
+      [class.error]="f['captchaAnswer'].invalid && f['captchaAnswer'].touched"
+      autocomplete="off"
+      maxlength="6">
+  </div>
+
+  <div class="error-message" *ngIf="f['captchaAnswer'].invalid && f['captchaAnswer'].touched">
+    <span *ngIf="f['captchaAnswer'].errors?.['required']">
+      Please enter the CAPTCHA code to continue
+    </span>
+  </div>
+</div>
+        
+      </div>
+
+      <!-- Submit Button -->
+      <button 
+        type="submit" 
+        class="btn btn-primary btn-block"
+        [disabled]="loading || loadingCaptcha">
+        <span *ngIf="!loading">Sign In</span>
+        <span *ngIf="loading">Signing In...</span>
+      </button>
+    </form>
+
+    <!-- Divider -->
+    <div class="divider">
+      <span>OR</span>
+    </div>
+
+    <!-- Register Links -->
+    <div class="register-links">
+      <p>Don't have an account?</p>
+      <div class="link-buttons">
+        <a routerLink="/register/organization" class="link-btn">
+          Register as Organization
+        </a>
+        <a routerLink="/register/employee" class="link-btn">
+          Complete Employee Registration
+        </a>
+      </div>
+    </div>
+  </div>
+
+  <!-- Loader -->
+  <app-loader *ngIf="loading"></app-loader>
+</div>

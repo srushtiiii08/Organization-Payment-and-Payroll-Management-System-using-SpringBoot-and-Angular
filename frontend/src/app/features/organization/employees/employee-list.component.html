@@ -1,0 +1,102 @@
+<app-navbar></app-navbar>
+<app-sidebar></app-sidebar>
+
+<div class="container">
+  <!-- Header -->
+  <div class="page-header">
+    <div>
+      <h1>Employee Management</h1>
+      <p>Manage your organization's employees</p>
+    </div>
+    <a routerLink="/organization/employees/create" class="btn btn-primary">
+      + Add New Employee
+    </a>
+  </div>
+
+  <!-- Search Bar -->
+  <div class="search-section">
+    <input 
+      type="text" 
+      class="search-input" 
+      placeholder="Search by name, email, or department..."
+      [(ngModel)]="searchTerm">
+  </div>
+
+  <!-- Loading State -->
+  <div *ngIf="loading" class="loading-state">
+    <div class="spinner"></div>
+    <p>Loading employees...</p>
+  </div>
+
+  <!-- Empty State -->
+  <div *ngIf="!loading && employees.length === 0" class="empty-state">
+    <div class="empty-icon">👥</div>
+    <h3>No Employees Yet</h3>
+    <p>Start by adding your first employee</p>
+    <a routerLink="/organization/employees/create" class="btn btn-primary">
+      Add Employee
+    </a>
+  </div>
+
+  <!-- Employee Table -->
+  <div *ngIf="!loading && employees.length > 0" class="card">
+    <div class="table-responsive">
+      <table class="table">
+        <thead>
+          <tr>
+            <th>ID</th>
+            <th>Name</th>
+            <th>Email</th>
+            <th>Department</th>
+            <th>Designation</th>
+            <th>Joining Date</th>
+            <th>Status</th>
+            <th>Actions</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr *ngFor="let employee of filteredEmployees">
+            <td>{{ employee.id }}</td>
+            <td>{{ employee.name }}</td>
+            <td>{{ employee.email }}</td>
+            <td>{{ employee.department }}</td>
+            <td>{{ employee.designation }}</td>
+            <td>{{ employee.dateOfJoining | date: 'dd/MM/yyyy' }}</td>
+            <td>
+              <span class="badge" [ngClass]="getStatusClass(employee.status)">
+                {{ employee.status }}
+              </span>
+            </td>
+            <td>
+              <div class="action-buttons">
+                <a 
+                  [routerLink]="['/organization/employees', employee.id]" 
+                  class="btn-action btn-view"
+                  title="View Details">
+                  👁️
+                </a>
+                <a 
+                  [routerLink]="['/organization/employees/edit', employee.id]" 
+                  class="btn-action btn-edit"
+                  title="Edit">
+                  ✏️
+                </a>
+                <button 
+                  (click)="deleteEmployee(employee.id, employee.name)" 
+                  class="btn-action btn-delete"
+                  title="Delete">
+                  🗑️
+                </button>
+              </div>
+            </td>
+          </tr>
+        </tbody>
+      </table>
+    </div>
+
+    <!-- No Results -->
+    <div *ngIf="filteredEmployees.length === 0" class="no-results">
+      <p>No employees found matching "{{ searchTerm }}"</p>
+    </div>
+  </div>
+</div>

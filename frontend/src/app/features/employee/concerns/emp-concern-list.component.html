@@ -1,0 +1,89 @@
+<app-navbar></app-navbar>
+<app-sidebar></app-sidebar>
+
+<div class="main-content">
+  <div class="container">
+    <!-- Header -->
+    <div class="page-header">
+      <div>
+        <h1>My Concerns</h1>
+        <p>Raise and track your concerns</p>
+      </div>
+      <a routerLink="/employee/concerns/create" class="btn btn-primary">
+        + Raise New Concern
+      </a>
+    </div>
+
+    <!-- Stats -->
+    <div class="stats-grid">
+      <div class="stat-card">
+        <div class="stat-icon orange">⏳</div>
+        <div class="stat-info">
+          <h3>{{ openCount }}</h3>
+          <p>Open Concerns</p>
+        </div>
+      </div>
+
+      <div class="stat-card">
+        <div class="stat-icon green">✓</div>
+        <div class="stat-info">
+          <h3>{{ resolvedCount }}</h3>
+          <p>Resolved Concerns</p>
+        </div>
+      </div>
+
+      <div class="stat-card">
+        <div class="stat-icon blue">📢</div>
+        <div class="stat-info">
+          <h3>{{ concerns.length }}</h3>
+          <p>Total Concerns</p>
+        </div>
+      </div>
+    </div>
+
+    <!-- Loading -->
+    <div *ngIf="loading" class="loading-state">
+      <div class="spinner"></div>
+      <p>Loading concerns...</p>
+    </div>
+
+    <!-- Empty State -->
+    <div *ngIf="!loading && concerns.length === 0" class="empty-state">
+      <div class="empty-icon">📢</div>
+      <h3>No Concerns Yet</h3>
+      <p>You haven't raised any concerns</p>
+      <a routerLink="/employee/concerns/create" class="btn btn-primary">
+        Raise Your First Concern
+      </a>
+    </div>
+
+    <!-- Concerns List -->
+    <div *ngIf="!loading && concerns.length > 0" class="concerns-list">
+      <div class="concern-card" *ngFor="let concern of concerns">
+        <div class="concern-header">
+          <div class="concern-title-section">
+            <h4>{{ concern.subject }}</h4>
+            <span class="priority-badge" [ngClass]="getPriorityClass(concern.priority)">
+              {{ concern.priority }}
+            </span>
+          </div>
+          <span class="badge" [ngClass]="getStatusClass(concern.status)">
+            {{ concern.status }}
+          </span>
+        </div>
+
+        <div class="concern-meta">
+          <span class="meta-item">
+            📅 {{ concern.createdAt | date: 'dd MMM yyyy' }}
+          </span>
+        </div>
+
+        <div class="concern-actions">
+          <a [routerLink]="['/employee/concerns', concern.id]" class="btn-link">
+            View Details →
+          </a>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>

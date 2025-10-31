@@ -1,0 +1,192 @@
+<app-navbar></app-navbar>
+<app-sidebar></app-sidebar>
+
+<div class="container">
+  <!-- Header -->
+  <div class="page-header">
+    <div>
+      <h1>Edit Salary Structure</h1>
+      <p *ngIf="employeeName">Employee: {{ employeeName }}</p>
+    </div>
+    <button class="btn btn-secondary" (click)="cancel()">
+      ← Back
+    </button>
+  </div>
+
+  <!-- Form Card -->
+  <div class="card">
+    <form [formGroup]="salaryForm" (ngSubmit)="onSubmit()">
+      
+      <!-- Earnings Section -->
+      <div class="form-section">
+        <h3 class="section-title">💰 Earnings</h3>
+        
+        <div class="form-row">
+          <div class="form-group">
+            <label class="form-label" for="basicSalary">
+              Basic Salary <span class="required">*</span>
+            </label>
+            <div class="input-with-icon">
+              <span class="currency-symbol">₹</span>
+              <input 
+                type="number" 
+                id="basicSalary"
+                class="form-control with-icon" 
+                formControlName="basicSalary"
+                placeholder="0.00"
+                [class.error]="f['basicSalary'].invalid && f['basicSalary'].touched">
+            </div>
+            
+            <div class="error-message" *ngIf="f['basicSalary'].invalid && f['basicSalary'].touched">
+              <span *ngIf="f['basicSalary'].errors?.['required']">Basic salary is required</span>
+              <span *ngIf="f['basicSalary'].errors?.['min']">Must be greater than 0</span>
+            </div>
+          </div>
+
+          <div class="form-group">
+            <label class="form-label" for="hra">
+              House Rent Allowance (HRA) <span class="required">*</span>
+            </label>
+            <div class="input-with-icon">
+              <span class="currency-symbol">₹</span>
+              <input 
+                type="number" 
+                id="hra"
+                class="form-control with-icon" 
+                formControlName="hra"
+                placeholder="0.00"
+                [class.error]="f['hra'].invalid && f['hra'].touched">
+            </div>
+            
+            <div class="error-message" *ngIf="f['hra'].invalid && f['hra'].touched">
+              <span *ngIf="f['hra'].errors?.['required']">HRA is required</span>
+              <span *ngIf="f['hra'].errors?.['min']">Cannot be negative</span>
+            </div>
+          </div>
+        </div>
+
+        <div class="form-row">
+          <div class="form-group">
+            <label class="form-label" for="dearnessAllowance">
+              Dearness Allowance (DA) <span class="required">*</span>
+            </label>
+            <div class="input-with-icon">
+              <span class="currency-symbol">₹</span>
+              <input 
+                type="number" 
+                id="dearnessAllowance"
+                class="form-control with-icon" 
+                formControlName="dearnessAllowance"
+                placeholder="0.00"
+                [class.error]="f['dearnessAllowance'].invalid && f['dearnessAllowance'].touched">
+            </div>
+            
+            <div class="error-message" *ngIf="f['dearnessAllowance'].invalid && f['dearnessAllowance'].touched">
+              <span *ngIf="f['dearnessAllowance'].errors?.['required']">DA is required</span>
+              <span *ngIf="f['dearnessAllowance'].errors?.['min']">Cannot be negative</span>
+            </div>
+          </div>
+
+          <div class="form-group">
+            <label class="form-label" for="otherAllowances">
+              Other Allowances
+            </label>
+            <div class="input-with-icon">
+              <span class="currency-symbol">₹</span>
+              <input 
+                type="number" 
+                id="otherAllowances"
+                class="form-control with-icon" 
+                formControlName="otherAllowances"
+                placeholder="0.00"
+                [class.error]="f['otherAllowances'].invalid && f['otherAllowances'].touched">
+            </div>
+            
+            <div class="error-message" *ngIf="f['otherAllowances'].invalid && f['otherAllowances'].touched">
+              <span *ngIf="f['otherAllowances'].errors?.['min']">Cannot be negative</span>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Deductions Section -->
+      <div class="form-section">
+        <h3 class="section-title">📉 Deductions</h3>
+        
+        <div class="form-row">
+          <div class="form-group">
+            <label class="form-label" for="providentFund">
+              Provident Fund (PF) <span class="required">*</span>
+            </label>
+            <div class="input-with-icon">
+              <span class="currency-symbol">₹</span>
+              <input 
+                type="number" 
+                id="providentFund"
+                class="form-control with-icon" 
+                formControlName="providentFund"
+                placeholder="0.00"
+                [class.error]="f['providentFund'].invalid && f['providentFund'].touched">
+            </div>
+            
+            <div class="error-message" *ngIf="f['providentFund'].invalid && f['providentFund'].touched">
+              <span *ngIf="f['providentFund'].errors?.['required']">PF is required</span>
+              <span *ngIf="f['providentFund'].errors?.['min']">Cannot be negative</span>
+            </div>
+          </div>
+
+          <div class="form-group">
+            <label class="form-label" for="effectiveFrom">
+              Effective From Date <span class="required">*</span>
+            </label>
+            <input 
+              type="date" 
+              id="effectiveFrom"
+              class="form-control" 
+              formControlName="effectiveFrom"
+              [class.error]="f['effectiveFrom'].invalid && f['effectiveFrom'].touched">
+            
+            <div class="error-message" *ngIf="f['effectiveFrom'].invalid && f['effectiveFrom'].touched">
+              <span *ngIf="f['effectiveFrom'].errors?.['required']">Effective date is required</span>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Salary Summary -->
+      <div class="summary-section">
+        <h3 class="section-title">📊 Salary Summary</h3>
+        
+        <div class="summary-grid">
+          <div class="summary-item">
+            <label>Gross Salary</label>
+            <p class="summary-amount gross">₹{{ grossSalary | number:'1.2-2' }}</p>
+          </div>
+
+          <div class="summary-item">
+            <label>Total Deductions</label>
+            <p class="summary-amount deduction">- ₹{{ f['providentFund'].value || 0 | number:'1.2-2' }}</p>
+          </div>
+
+          <div class="summary-item highlight">
+            <label>Net Salary (Take Home)</label>
+            <p class="summary-amount net">₹{{ netSalary | number:'1.2-2' }}</p>
+          </div>
+        </div>
+      </div>
+
+      <!-- Form Actions -->
+      <div class="form-actions">
+        <button type="button" class="btn btn-secondary" (click)="cancel()">
+          Cancel
+        </button>
+        <button type="submit" class="btn btn-primary" [disabled]="loading || salaryForm.invalid">
+          <span *ngIf="!loading">Update Salary Structure</span>
+          <span *ngIf="loading">Updating...</span>
+        </button>
+      </div>
+    </form>
+  </div>
+
+  <app-loader *ngIf="loading"></app-loader>
+</div>

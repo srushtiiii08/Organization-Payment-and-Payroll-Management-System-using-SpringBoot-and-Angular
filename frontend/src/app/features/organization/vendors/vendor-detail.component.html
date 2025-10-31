@@ -1,0 +1,155 @@
+<app-navbar></app-navbar>
+<app-sidebar></app-sidebar>
+
+<div class="main-content">
+  <div class="container">
+    
+    <!-- Header -->
+    <div class="page-header">
+      <div>
+        <h1>Vendor Details</h1>
+        <p>Complete vendor information</p>
+      </div>
+      <div class="header-actions">
+        <button class="btn btn-secondary" routerLink="/organization/vendors">
+          ← Back to List
+        </button>
+      </div>
+    </div>
+
+    <!-- Loading -->
+    <div *ngIf="loading" class="loading-state">
+      <div class="spinner"></div>
+      <p>Loading vendor details...</p>
+    </div>
+
+    <!-- Vendor Details -->
+    <div *ngIf="!loading && vendor" class="details-grid">
+      
+      <!-- Basic Information Card -->
+      <div class="card">
+        <div class="card-header">
+          <h3>Basic Information</h3>
+          <span class="badge" [ngClass]="getStatusClass(vendor.status)">
+            {{ vendor.status }}
+          </span>
+        </div>
+        <div class="detail-row">
+          <span class="label">Vendor ID:</span>
+          <span class="value">#{{ vendor.id }}</span>
+        </div>
+        <div class="detail-row">
+          <span class="label">Vendor Name:</span>
+          <span class="value">{{ vendor.name }}</span>
+        </div>
+        <div class="detail-row">
+          <span class="label">Service Type:</span>
+          <span class="value">{{ vendor.serviceType }}</span>
+        </div>
+        <div class="detail-row">
+          <span class="label">Email:</span>
+          <span class="value">{{ vendor.email }}</span>
+        </div>
+        <div class="detail-row">
+          <span class="label">Phone:</span>
+          <span class="value">{{ vendor.phone }}</span>
+        </div>
+        <div class="detail-row">
+          <span class="label">Address:</span>
+          <span class="value">{{ vendor.address }}</span>
+        </div>
+      </div>
+
+      <!-- Bank Details Card -->
+      <div class="card">
+        <div class="card-header">
+          <h3>Bank Account Details</h3>
+        </div>
+        <div class="detail-row">
+          <span class="label">Bank Name:</span>
+          <span class="value">{{ vendor.bankName }}</span>
+        </div>
+        <div class="detail-row">
+          <span class="label">Account Number:</span>
+          <span class="value">{{ vendor.bankAccountNumber }}</span>
+        </div>
+        <div class="detail-row">
+          <span class="label">IFSC Code:</span>
+          <span class="value">{{ vendor.ifscCode }}</span>
+        </div>
+      </div>
+
+      <!-- Tax Details Card -->
+      <div class="card">
+        <div class="card-header">
+          <h3>Tax Details</h3>
+        </div>
+        <div class="detail-row" *ngIf="vendor.panNumber">
+          <span class="label">PAN Number:</span>
+          <span class="value">{{ vendor.panNumber }}</span>
+        </div>
+        <div class="detail-row" *ngIf="vendor.gstNumber">
+          <span class="label">GST Number:</span>
+          <span class="value">{{ vendor.gstNumber }}</span>
+        </div>
+      </div>
+
+      <!-- Contract Details Card -->
+      <div class="card">
+        <div class="card-header">
+          <h3>Contract Details</h3>
+        </div>
+        <div class="detail-row" *ngIf="vendor.contractStartDate">
+          <span class="label">Contract Start:</span>
+          <span class="value">{{ vendor.contractStartDate | date: 'dd MMM yyyy' }}</span>
+        </div>
+        <div class="detail-row" *ngIf="vendor.contractEndDate">
+          <span class="label">Contract End:</span>
+          <span class="value">{{ vendor.contractEndDate | date: 'dd MMM yyyy' }}</span>
+        </div>
+        <div class="detail-row">
+          <span class="label">Created At:</span>
+          <span class="value">{{ vendor.createdAt | date: 'dd MMM yyyy, hh:mm a' }}</span>
+        </div>
+        <div class="detail-row">
+          <span class="label">Last Updated:</span>
+          <span class="value">{{ vendor.updatedAt | date: 'dd MMM yyyy, hh:mm a' }}</span>
+        </div>
+      </div>
+
+    </div>
+
+    <!-- Action Buttons -->
+    <div *ngIf="!loading && vendor" class="actions-section">
+      <h3>Actions</h3>
+      <div class="action-buttons">
+        
+        <button 
+          class="btn btn-success" 
+          (click)="updateStatus(VendorStatus.ACTIVE)"
+          *ngIf="vendor.status !== VendorStatus.ACTIVE">
+          ✅ Mark as Active
+        </button>
+
+        <button 
+          class="btn btn-warning" 
+          (click)="updateStatus(VendorStatus.INACTIVE)"
+          *ngIf="vendor.status !== VendorStatus.INACTIVE">
+          ⏸️ Mark as Inactive
+        </button>
+
+        <button 
+          class="btn btn-danger" 
+          (click)="updateStatus(VendorStatus.BLACKLISTED)"
+          *ngIf="vendor.status !== VendorStatus.BLACKLISTED">
+          🚫 Blacklist Vendor
+        </button>
+
+        <button class="btn btn-delete" (click)="deleteVendor()">
+          🗑️ Delete Vendor
+        </button>
+      </div>
+    </div>
+
+  </div>
+</div>

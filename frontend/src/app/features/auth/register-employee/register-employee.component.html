@@ -1,0 +1,190 @@
+<div class="register-container">
+  <div class="register-card">
+    <div class="register-header">
+      <h1>Complete Employee Registration</h1>
+      <p>Set your password to activate your account</p>
+    </div>
+
+    <form [formGroup]="registerForm" (ngSubmit)="onSubmit()">
+      
+      <!-- Email -->
+      <div class="form-group">
+        <label class="form-label" for="email">
+          Email Address <span class="required">*</span>
+        </label>
+        <input 
+          type="email" 
+          id="email"
+          class="form-control" 
+          formControlName="email"
+          placeholder="Enter your registered email"
+          [class.error]="f['email'].invalid && f['email'].touched">
+        
+        <div class="error-message" *ngIf="f['email'].invalid && f['email'].touched">
+          <span *ngIf="f['email'].errors?.['required']">Email is required</span>
+          <span *ngIf="f['email'].errors?.['email']">Invalid email format</span>
+        </div>
+      </div>
+
+      <!-- Password -->
+      <div class="form-group">
+        <label class="form-label" for="password">
+          Password <span class="required">*</span>
+        </label>
+        <div class="password-wrapper">
+          <input 
+            [type]="showPassword ? 'text' : 'password'"
+            id="password"
+            class="form-control" 
+            formControlName="password"
+            placeholder="Create a strong password"
+            [class.error]="f['password'].invalid && f['password'].touched">
+          
+          <button 
+            type="button" 
+            class="toggle-password"
+            (click)="togglePasswordVisibility('password')">
+            {{ showPassword ? '👁️' : '👁️‍🗨️' }}
+          </button>
+        </div>
+
+        <div class="error-message" *ngIf="f['password'].invalid && f['password'].touched">
+          <span *ngIf="f['password'].errors?.['required']">Password is required</span>
+          <span *ngIf="f['password'].errors?.['minlength']">
+            Password must be at least 8 characters
+          </span>
+        </div>
+
+        <!-- Password Strength Indicators -->
+        <div class="password-strength" *ngIf="f['password'].errors?.['passwordStrength'] && f['password'].touched">
+          <small>Password must contain:</small>
+          <ul>
+            <li [class.valid]="f['password'].errors?.['passwordStrength'].hasNumber">
+              ✓ At least one number (0-9)
+            </li>
+            <li [class.valid]="f['password'].errors?.['passwordStrength'].hasUpper">
+              ✓ At least one uppercase letter (A-Z)
+            </li>
+            <li [class.valid]="f['password'].errors?.['passwordStrength'].hasLower">
+              ✓ At least one lowercase letter (a-z)
+            </li>
+            <li [class.valid]="f['password'].errors?.['passwordStrength'].hasSpecial">
+              ✓ At least one special character (&#64;#$%^&+=)
+            </li>
+          </ul>
+        </div>
+      </div>
+ 
+      <!-- Confirm Password -->
+      <div class="form-group">
+        <label class="form-label" for="confirmPassword">
+          Confirm Password <span class="required">*</span>
+        </label>
+        <div class="password-wrapper">
+          <input 
+            [type]="showConfirmPassword ? 'text' : 'password'"
+            id="confirmPassword"
+            class="form-control" 
+            formControlName="confirmPassword"
+            placeholder="Re-enter your password"
+            [class.error]="(f['confirmPassword'].invalid || registerForm.errors?.['passwordMismatch']) && f['confirmPassword'].touched">
+          
+          <button 
+            type="button" 
+            class="toggle-password"
+            (click)="togglePasswordVisibility('confirmPassword')">
+            {{ showConfirmPassword ? '👁️' : '👁️‍🗨️' }}
+          </button>
+        </div>
+
+        <div class="error-message" *ngIf="f['confirmPassword'].touched">
+          <span *ngIf="f['confirmPassword'].errors?.['required']">Please confirm your password</span>
+          <span *ngIf="registerForm.errors?.['passwordMismatch'] && !f['confirmPassword'].errors?.['required']">
+            Passwords do not match
+          </span>
+        </div>
+      </div>
+
+
+      <!-- ✅ NEW: Document Upload Section -->
+      <div class="form-group">
+        <label class="form-label" for="documentFile">
+          Identity/Address Proof Document <span class="required">*</span>
+        </label>
+        <p class="document-info">
+          Upload a valid government ID, passport, or address proof (PDF, JPG, PNG only, max 5MB)
+        </p>
+        
+        <!-- File Upload Area -->
+        <div class="file-upload-area" 
+             [class.has-file]="documentUrl"
+             [class.uploading]="uploading">
+          
+          <!-- Upload Zone (when no file) -->
+          <div class="upload-zone" *ngIf="!documentUrl && !uploading">
+            <input 
+              type="file" 
+              id="documentFile"
+              class="file-input"
+              accept=".pdf,.jpg,.jpeg,.png"
+              (change)="onFileSelected($event)">
+            
+            <label for="documentFile" class="file-label">
+              <div class="upload-icon">📄</div>
+              <div class="upload-text">
+                <strong>Click to upload</strong> or drag and drop
+              </div>
+              <div class="upload-hint">
+                PDF, JPG, PNG (max 5MB)
+              </div>
+            </label>
+          </div>
+
+          <!-- Uploading State -->
+          <div class="uploading-state" *ngIf="uploading">
+            <div class="spinner"></div>
+            <p>Uploading document...</p>
+          </div>
+
+          <!-- File Uploaded Successfully -->
+          <div class="file-uploaded" *ngIf="documentUrl && !uploading">
+            <div class="file-info">
+              <div class="file-icon">✅</div>
+              <div class="file-details">
+                <span class="file-name">{{ selectedFile?.name }}</span>
+                <span class="file-status">Successfully uploaded</span>
+              </div>
+            </div>
+            <button 
+              type="button" 
+              class="remove-file-btn"
+              (click)="removeDocument()">
+              ❌
+            </button>
+          </div>
+        </div>
+
+        <!-- Error message for document -->
+        <div class="error-message" *ngIf="f['documentProofUrl'].invalid && f['documentProofUrl'].touched">
+          <span *ngIf="f['documentProofUrl'].errors?.['required']">Document proof is required</span>
+        </div>
+      </div>
+
+
+      <!-- Submit Button -->
+      <button 
+        type="submit" 
+        class="btn btn-primary btn-block"
+        [disabled]="loading">
+        <span *ngIf="!loading">Complete Registration</span>
+        <span *ngIf="loading">Registering...</span>
+      </button>
+    </form>
+
+    <!-- Login Link -->
+    <div class="login-link">
+      <p>Already registered? <a href="/login">Sign In</a></p>
+    </div>
+  </div>
+
+</div>

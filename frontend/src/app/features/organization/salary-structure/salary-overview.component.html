@@ -1,0 +1,85 @@
+<app-navbar></app-navbar>
+<app-sidebar></app-sidebar>
+
+<div class="container">
+  <!-- Header -->
+  <div class="page-header">
+    <div>
+      <h1>Salary Structure Overview</h1>
+      <p>Manage salary structures for all employees</p>
+    </div>
+    <a routerLink="/organization/dashboard" class="btn btn-secondary">
+      ← Back to Dashboard
+    </a>
+  </div>
+
+  <!-- Search Bar -->
+  <div class="search-section">
+    <input 
+      type="text" 
+      class="search-input" 
+      placeholder="Search by name or department..."
+      [(ngModel)]="searchTerm">
+  </div>
+
+  <!-- Loading State -->
+  <div *ngIf="loading" class="loading-state">
+    <div class="spinner"></div>
+    <p>Loading employees...</p>
+  </div>
+
+  <!-- Employee Salary Table -->
+  <div *ngIf="!loading" class="card">
+    <div class="table-responsive">
+      <table class="table">
+        <thead>
+          <tr>
+            <th>Employee Name</th>
+            <th>Department</th>
+            <th>Designation</th>
+            <th>Status</th> 
+            <th>Actions</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr *ngFor="let employee of filteredEmployees">
+            <td><strong>{{ employee.employeeName }}</strong></td>
+            <td>{{ employee.department }}</td>
+            <td>{{ employee.designation }}</td>
+            <td>
+              <span class="badge" [ngClass]="getStatusClass(employee.status)">
+                {{ employee.status }}
+              </span>
+            </td>
+            <td>
+              <div class="action-buttons">
+                <!-- ⭐ SHOW DISABLED BUTTON IF TERMINATED -->
+                <button 
+                  *ngIf="isTerminated(employee.status)"
+                  class="btn btn-primary btn-sm btn-disabled"
+                  disabled
+                  title="Cannot manage salary for terminated employee">
+                  🔒 Salary Disabled
+                </button>
+
+                <!-- ⭐ SHOW ACTIVE BUTTON IF NOT TERMINATED -->
+                <a 
+                  *ngIf="!isTerminated(employee.status)"
+                  [routerLink]="['/organization/salary-structure/employee', employee.employeeId]"
+                  class="btn btn-primary btn-sm">
+                  💰 Manage Salary
+                </a>
+              </div>
+            </td>
+          </tr>
+        </tbody>
+      </table>
+    </div>
+
+    <!-- ⭐ ADD NO RESULTS MESSAGE -->
+    <div *ngIf="filteredEmployees.length === 0" class="no-results">
+      <p>No employees found matching "{{ searchTerm }}"</p>
+    </div>
+    
+  </div>
+</div>

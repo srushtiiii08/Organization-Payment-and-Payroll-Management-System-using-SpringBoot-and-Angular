@@ -1,0 +1,114 @@
+<app-navbar></app-navbar>
+<app-sidebar></app-sidebar>
+
+<div class="main-content">
+  <div class="container">
+    <!-- Header -->
+    <div class="page-header">
+      <div>
+        <h1>Vendor Management</h1>
+        <p>Manage your service vendors</p>
+      </div>
+      <a routerLink="/organization/vendors/create" class="btn btn-primary">
+        + Add New Vendor
+      </a>
+    </div>
+
+    <!-- Stats -->
+    <div class="stats-grid">
+      <div class="stat-card">
+        <div class="stat-icon blue">🏪</div>
+        <div class="stat-info">
+          <h3>{{ vendors.length }}</h3>
+          <p>Total Vendors</p>
+        </div>
+      </div>
+
+      <div class="stat-card">
+        <div class="stat-icon green">✓</div>
+        <div class="stat-info">
+          <h3>{{ activeCount }}</h3>
+          <p>Active Vendors</p>
+        </div>
+      </div>
+    </div>
+
+    <!-- Search -->
+    <div class="search-section">
+      <input 
+        type="text" 
+        class="search-input" 
+        placeholder="Search by name, email, or service type..."
+        [(ngModel)]="searchTerm">
+    </div>
+
+    <!-- Loading -->
+    <div *ngIf="loading" class="loading-state">
+      <div class="spinner"></div>
+      <p>Loading vendors...</p>
+    </div>
+
+    <!-- Empty State -->
+    <div *ngIf="!loading && vendors.length === 0" class="empty-state">
+      <div class="empty-icon">🏪</div>
+      <h3>No Vendors Yet</h3>
+      <p>Start by adding your first vendor</p>
+      <a routerLink="/organization/vendors/create" class="btn btn-primary">
+        Add Vendor
+      </a>
+    </div>
+
+    <!-- Vendors Table -->
+    <div *ngIf="!loading && vendors.length > 0" class="card">
+      <div class="table-responsive">
+        <table class="table">
+          <thead>
+            <tr>
+              <th>ID</th>
+              <th>Vendor Name</th>
+              <th>Email</th>
+              <th>Service Type</th>
+              <th>Contract Start</th>
+              <th>Status</th>
+              <th>Actions</th>
+            </tr>
+          </thead>
+          <tbody>
+            <tr *ngFor="let vendor of filteredVendors">
+              <td>#{{ vendor.id }}</td>
+              <td><strong>{{ vendor.name }}</strong></td>
+              <td>{{ vendor.email }}</td>
+              <td>{{ vendor.serviceType }}</td>
+              <td>{{ vendor.contractStartDate | date: 'dd MMM yyyy' }}</td>
+              <td>
+                <span class="badge" [ngClass]="getStatusClass(vendor.status)">
+                  {{ vendor.status }}
+                </span>
+              </td>
+              <td>
+                <div class="action-buttons">
+                  <a 
+                    [routerLink]="['/organization/vendors', vendor.id]" 
+                    class="btn-action btn-view"
+                    title="View Details">
+                    👁️
+                  </a>
+                  <button 
+                    (click)="deleteVendor(vendor.id, vendor.name)" 
+                    class="btn-action btn-delete"
+                    title="Delete">
+                    🗑️
+                  </button>
+                </div>
+              </td>
+            </tr>
+          </tbody>
+        </table>
+      </div>
+
+      <div *ngIf="filteredVendors.length === 0" class="no-results">
+        <p>No vendors found matching "{{ searchTerm }}"</p>
+      </div>
+    </div>
+  </div>
+</div>

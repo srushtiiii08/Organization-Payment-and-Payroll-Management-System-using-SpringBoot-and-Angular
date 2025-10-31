@@ -1,0 +1,300 @@
+<app-navbar></app-navbar>
+<app-sidebar></app-sidebar>
+
+<div class="container">
+  <!-- Header -->
+  <div class="page-header">
+    <div>
+      <h1>Employee Details</h1>
+      <p>View and manage employee information</p>
+    </div>
+    <div class="header-actions">
+      <a [routerLink]="['/organization/employees/edit', employeeId]" class="btn btn-primary">
+        Edit Employee
+      </a>
+      <a routerLink="/organization/employees" class="btn btn-secondary">
+        ← Back to List
+      </a>
+    </div>
+  </div>
+
+   <!-- Termination Notice Banner -->
+  <div *ngIf="!loading && employee && employee.status === EmployeeStatus.TERMINATED" 
+       class="termination-notice">
+    <!-- <div class="notice-icon" style="color: red; font-weight: bold; margin: 0; text-align: center;">⚠️</div> -->
+    <div class="notice-content" >
+      <h2 style="color: red; font-weight: bold; margin: 0; text-align: center;">⚠️ Employee Terminated</h2>
+      <p style=" font-weight: bold; margin: 0; text-align: center;">This employee has been terminated and no longer has access to the system.</p>
+      <p style=" font-weight: bold; margin: 0; text-align: center;">Verification and Salary Management actions are disabled.</p>
+    </div>
+  </div>
+
+  <!-- Loading State -->
+  <div *ngIf="loading" class="loading-state">
+    <div class="spinner"></div>
+    <p>Loading employee details...</p>
+  </div>
+
+  <!-- Employee Details -->
+  <div *ngIf="!loading && employee" class="details-grid">
+    
+    <!-- Personal Information Card -->
+    <div class="card">
+      <div class="card-header">
+        <h3>Personal Information</h3>
+        <div class="status-badges">
+          <span class="badge" [ngClass]="getStatusClass(employee.status)">
+            {{ employee.status }}
+          </span>
+          <span class="badge" [ngClass]="getVerificationClass(employee.accountVerificationStatus)">
+            {{ employee.accountVerificationStatus }}
+          </span>
+        </div>
+      </div>
+
+      <div class="info-grid">
+        <div class="info-item">
+          <label>Employee ID</label>
+          <p>{{ employee.id }}</p>
+        </div>
+
+        <div class="info-item">
+          <label>Full Name</label>
+          <p>{{ employee.name }}</p>
+        </div>
+
+        <div class="info-item">
+          <label>Email Address</label>
+          <p>{{ employee.email }}</p>
+        </div>
+
+        <div class="info-item">
+          <label>Phone Number</label>
+          <p>{{ employee.phone }}</p>
+        </div>
+
+        <div class="info-item full-width">
+          <label>Address</label>
+          <p>{{ employee.address }}</p>
+        </div>
+      </div>
+    </div>
+
+    <!-- Employment Details Card -->
+    <div class="card">
+      <div class="card-header">
+        <h3>Employment Details</h3>
+      </div>
+
+      <div class="info-grid">
+        <div class="info-item">
+          <label>Department</label>
+          <p>{{ employee.department }}</p>
+        </div>
+
+        <div class="info-item">
+          <label>Designation</label>
+          <p>{{ employee.designation }}</p>
+        </div>
+
+        <div class="info-item">
+          <label>Date of Joining</label>
+          <p>{{ employee.dateOfJoining | date: 'dd MMMM yyyy' }}</p>
+        </div>
+
+        <div class="info-item">
+          <label>Organization</label>
+          <p>{{ employee.organizationName }}</p>
+        </div>
+      </div>
+    </div>
+
+
+    <!--Verification Documents Section -->
+    <div class="card">
+      <div class="card-header">
+      <h3>📄 Account Proof Documents</h3>
+    </div>
+
+  <!-- ✅ DOCUMENT EXISTS -->
+  <div *ngIf="employee.accountProofUrl" class="document-section">
+    
+    <!-- Document Info Display -->
+    <div class="document-info-box">
+      <div class="doc-icon">🔎</div>
+      <div class="doc-details">
+        <p class="doc-label">Document Type:</p>
+        <p class="doc-value">{{ getFileType(employee.accountProofUrl) }}</p>
+        
+        <p class="doc-label">Document URL:</p>
+        <p class="doc-url">{{ employee.accountProofUrl }}</p>
+      </div>
+    </div>
+
+    <!-- Document Preview (Images Only) -->
+    <div *ngIf="isImage(employee.accountProofUrl)" class="image-preview-container">
+      <p class="preview-label">🖼️ Document Preview:</p>
+      <img 
+        [src]="employee.accountProofUrl" 
+        alt="Account Proof Preview"
+        class="preview-image"
+        (error)="onImageError($event)">
+    </div>
+
+    <!-- PDF Notice -->
+    <div *ngIf="isPDF(employee.accountProofUrl)" class="pdf-notice">
+      <p>📄 This is a PDF document. Click the buttons below to view or download it.</p>
+    </div>
+
+    <!-- Action Buttons -->
+    <div class="document-actions">
+      <a 
+        [href]="employee.accountProofUrl" 
+        target="_blank"
+        rel="noopener noreferrer"
+        class="btn btn-view">
+        <span class="btn-icon">🔗</span>
+        View Document
+      </a>
+      
+      <a 
+        [href]="employee.accountProofUrl" 
+        [download]="getFileName(employee.accountProofUrl)"
+        class="btn btn-download">
+        <span class="btn-icon">⬇️</span>
+        Download Document
+      </a>
+    </div>
+  </div>
+
+  <!-- ❌ NO DOCUMENT -->
+  <div *ngIf="!employee.accountProofUrl" class="no-document">
+    <div class="placeholder-icon">⚠️</div>
+    <p><strong>No account proof document uploaded</strong></p>
+    <p class="text-muted">The employee has not uploaded any account verification documents yet.</p>
+  </div>
+</div>
+
+
+
+    <!-- Bank Details Card -->
+    <div class="card">
+      <div class="card-header">
+        <h3>Bank Account Details</h3>
+      </div>
+
+      <div class="info-grid">
+        <div class="info-item">
+          <label>Bank Name</label>
+          <p>{{ employee.bankName }}</p>
+        </div>
+
+        <div class="info-item">
+          <label>Account Number</label>
+          <p>{{ employee.bankAccountNumber }}</p>
+        </div>
+
+        <div class="info-item">
+          <label>IFSC Code</label>
+          <p>{{ employee.ifscCode }}</p>
+        </div>
+
+        <div class="info-item">
+          <label>Verification Status</label>
+          <p>
+            <span class="badge" [ngClass]="getVerificationClass(employee.accountVerificationStatus)">
+              {{ employee.accountVerificationStatus }}
+            </span>
+          </p>
+        </div>
+
+        <div class="info-item full-width" *ngIf="employee.accountProofUrl">
+          <label>Account Proof</label>
+          <p>
+            <a [href]="employee.accountProofUrl" target="_blank" class="link-btn">
+              View Document
+            </a>
+          </p>
+        </div>
+      </div>
+    </div>
+
+    <!-- Actions Card -->
+    <div class="card">
+      <div class="card-header">
+        <h3>Actions</h3>
+      </div>
+
+      <div class="action-buttons">
+        <!-- Verify Account Button - Disabled if Terminated -->
+    <button 
+      *ngIf="employee.accountVerificationStatus !== AccountVerificationStatus.VERIFIED"
+      (click)="verifyAccount()" 
+      class="btn btn-success"
+      [disabled]="isEmployeeTerminated()"
+      [title]="isEmployeeTerminated() ? 'Cannot verify terminated employee' : 'Verify employee account'">
+      ✓ Verify Account
+    </button>
+
+
+    <!-- Status Change Buttons - Hidden if Terminated -->
+    <button 
+      *ngIf="employee.status === EmployeeStatus.ACTIVE"
+      (click)="updateStatus(EmployeeStatus.INACTIVE)" 
+      class="btn btn-warning">
+      Mark as Inactive
+    </button>
+
+    <button 
+      *ngIf="employee.status === EmployeeStatus.INACTIVE"
+      (click)="updateStatus(EmployeeStatus.ACTIVE)" 
+      class="btn btn-success">
+      Mark as Active
+    </button>
+
+    <!-- Terminate Button - Only show if NOT already terminated -->
+    <button 
+      *ngIf="employee.status !== EmployeeStatus.TERMINATED"
+      (click)="updateStatus(EmployeeStatus.TERMINATED)" 
+      class="btn btn-danger">
+      Terminate Employee
+    </button>
+
+
+    <!-- ⭐ UPDATED: Manage Salary Button - Show as disabled if Terminated -->
+    <button
+      *ngIf="!isEmployeeTerminated()"
+      [routerLink]="['/organization/salary-structure/employee', employeeId]"
+      class="btn btn-primary">
+      Manage Salary Structure
+    </button>
+
+    <!-- ⭐ NEW: Disabled Salary Button - Show when terminated -->
+    <button
+      *ngIf="isEmployeeTerminated()"
+      class="btn btn-primary btn-disabled"
+      disabled
+      title="Cannot manage salary for terminated employee">
+      Manage Salary Structure
+    </button>
+
+    <!-- ⭐ NEW: Reactivate Button - Show only if terminated -->
+    <button 
+      *ngIf="employee.status === EmployeeStatus.TERMINATED"
+      (click)="reactivateEmployee()" 
+      class="btn btn-success">
+      🔄 Reactivate Employee
+    </button>
+  </div>
+
+  <!-- ⭐ NEW: Info message when terminated -->
+  <div *ngIf="isEmployeeTerminated()" class="terminated-info">
+    <p><strong>ℹ️ Note:</strong> This employee is terminated. To enable account verification and salary management, you must reactivate the employee first.</p>
+  </div>
+</div>
+
+  
+        
+
+  </div>
+</div>

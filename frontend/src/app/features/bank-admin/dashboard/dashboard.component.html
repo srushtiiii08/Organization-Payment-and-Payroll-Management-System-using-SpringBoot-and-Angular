@@ -1,0 +1,72 @@
+<app-navbar></app-navbar>
+<app-sidebar></app-sidebar>
+
+<div class="dashboard-container">
+  <div class="dashboard-header">
+    <h1>Bank Admin Dashboard</h1>
+    <p>Welcome! Manage organizations and payment requests</p>
+  </div>
+
+  <!-- Loading State -->
+  <div *ngIf="loading" class="loading-state">
+    <div class="spinner"></div>
+    <p>Loading dashboard...</p>
+  </div>
+
+  <!-- Stats Cards -->
+  <div *ngIf="!loading" class="stats-grid">
+    <!-- Card 1: Total Organizations -->
+    <div class="stat-card">
+      <div class="stat-icon blue">🏢</div>
+      <div class="stat-info">
+        <h3>{{ organizations.length }}</h3>
+        <p>Total Organizations</p>
+      </div>
+    </div>
+
+    <!-- Card 2: Pending Verifications -->
+    <div class="stat-card">
+      <div class="stat-icon orange">⏳</div>
+      <div class="stat-info">
+        <h3>{{ pendingCount }}</h3>
+        <p>Pending Verifications</p>
+      </div>
+    </div>
+
+    <!-- Card 3: Pending Payments -->
+    <div class="stat-card">
+      <div class="stat-icon purple">💰</div>
+      <div class="stat-info">
+        <h3>{{ pendingPaymentsCount }}</h3>
+        <p>Pending Payments</p>
+      </div>
+    </div>
+
+    <!-- 🆕 Card 4: Processed Payments (UPDATED) -->
+    <div class="stat-card">
+      <div class="stat-icon green">✅</div>
+      <div class="stat-info">
+        <h3>{{ processedPaymentsCount }}</h3>
+        <p>Completed Payments</p>
+      </div>
+    </div>
+  </div>
+
+  <!-- Quick Actions -->
+  <div *ngIf="!loading" class="quick-actions">
+    <h2>Quick Actions</h2>
+    <div class="action-grid">
+      <a routerLink="/admin/organizations" class="action-card">
+        <div class="action-icon">🏢</div>
+        <h3>Manage Organizations</h3>
+        <p>View and verify organizations</p>
+      </a>
+
+      <a routerLink="/admin/payment-requests" class="action-card">
+        <div class="action-icon">💳</div>
+        <h3>Payment Requests</h3>
+        <p>Approve or reject payments</p>
+      </a>
+    </div>
+  </div>
+</div>

@@ -1,0 +1,225 @@
+<app-navbar></app-navbar>
+<app-sidebar></app-sidebar>
+
+<div class="main-content">
+  <div class="container">
+    <!-- Header -->
+    <div class="page-header">
+      <div>
+        <h1>Organization Verification</h1>
+        <p>Review and verify organization details</p>
+      </div>
+      <a routerLink="/admin/organizations" class="btn btn-secondary">
+        ← Back to List
+      </a>
+    </div>
+
+    <!-- Loading -->
+    <div *ngIf="loading" class="loading-state">
+      <div class="spinner"></div>
+      <p>Loading organization details...</p>
+    </div>
+
+    <!-- Organization Details -->
+    <div *ngIf="!loading && organization" class="details-container">
+      
+      <!-- Status Card -->
+      <div class="card status-card" [class.verified]="organization.verified" [class.pending]="!organization.verified">
+        <div class="status-header">
+          <div class="status-icon">
+            {{ organization.verified ? '✓' : '⏳' }}
+          </div>
+          <div>
+            <h3>Verification Status</h3>
+            <span class="badge large" [class.badge-success]="organization.verified" [class.badge-warning]="!organization.verified">
+              {{ organization.verified ? 'VERIFIED' : 'PENDING VERIFICATION' }}
+            </span>
+          </div>
+        </div>
+
+        <!-- Verification Info -->
+        <div class="verification-info" *ngIf="organization.verified">
+          <div class="info-row">
+            <label>Verified By:</label>
+            <p>{{ organization.verifiedByName || 'Bank Admin' }}</p>
+          </div>
+          <div class="info-row">
+            <label>Verified Date:</label>
+            <p *ngIf="organization.verifiedAt">{{ organization.verifiedAt | date: 'dd MMM yyyy, hh:mm a' }}</p>
+          </div>
+        </div>
+      </div>
+
+      <!-- Organization Information -->
+      <div class="card">
+        <div class="card-header">
+          <h3>Organization Information</h3>
+        </div>
+
+        <div class="info-grid">
+          <div class="info-item">
+            <label>Organization ID</label>
+            <p>#{{ organization.id }}</p>
+          </div>
+
+          <div class="info-item">
+            <label>Organization Name</label>
+            <p><strong>{{ organization.name }}</strong></p>
+          </div>
+
+          <div class="info-item">
+            <label>Registration Number</label>
+            <p>{{ organization.registrationNumber }}</p>
+          </div>
+
+          <div class="info-item">
+            <label>Email Address</label>
+            <p>{{ organization.email }}</p>
+          </div>
+
+          <div class="info-item">
+            <label>Contact Phone</label>
+            <p>{{ organization.contactPhone }}</p>
+          </div>
+
+          <div class="info-item">
+            <label>Registered Date</label>
+            <p>{{ organization.createdAt | date: 'dd MMM yyyy' }}</p>
+          </div>
+
+          <div class="info-item full-width">
+            <label>Address</label>
+            <p>{{ organization.address }}</p>
+          </div>
+        </div>
+      </div>
+
+      <!-- 🆕 REPLACE WITH THIS SIMPLIFIED VERSION -->
+      <div class="card">
+        <div class="card-header">
+          <h3>📄 Verification Documents</h3>
+        </div>
+
+        <!-- ✅ DOCUMENT EXISTS -->
+        <div *ngIf="organization.verificationDocumentsUrl" class="document-section">
+          
+          <!-- Document Info Display -->
+          <div class="document-info-box">
+            <div class="doc-icon">📎</div>
+            <div class="doc-details">
+              <p class="doc-label">Document Type:</p>
+              <p class="doc-value">{{ getFileType(organization.verificationDocumentsUrl) }}</p>
+              
+              <p class="doc-label">Document URL:</p>
+              <p class="doc-url">{{ organization.verificationDocumentsUrl }}</p>
+            </div>
+          </div>
+
+                <!-- Document Preview (Images Only) -->
+          <!-- <div *ngIf="isImage(organization.verificationDocumentsUrl)" class="image-preview-container">
+            <p class="preview-label">📷 Document Preview:</p>
+            <img 
+              [src]="organization.verificationDocumentsUrl" 
+              alt="Verification Document Preview"
+              class="preview-image"
+              (error)="onImageError($event)">
+          </div> -->
+
+          <!-- PDF Notice -->
+          <div *ngIf="isPDF(organization.verificationDocumentsUrl)" class="pdf-notice">
+            <p>📄 This is a PDF document. Click the buttons below to view or download it.</p>
+          </div>
+
+          <!-- Action Buttons -->
+          <div class="document-actions">
+            <a 
+              [href]="organization.verificationDocumentsUrl" 
+              target="_blank"
+              rel="noopener noreferrer"
+              class="btn btn-view">
+              <span class="btn-icon">🔗</span>
+              View Document
+            </a>
+            
+            <a 
+              [href]="organization.verificationDocumentsUrl" 
+              [download]="getFileName(organization.verificationDocumentsUrl)"
+              class="btn btn-download">
+              <span class="btn-icon">⬇️</span>
+              Download Document
+            </a>
+          </div>
+        </div>
+
+        <!-- ❌ NO DOCUMENT -->
+        <div *ngIf="!organization.verificationDocumentsUrl" class="no-document">
+          <div class="placeholder-icon">⚠️</div>
+          <p><strong>No verification document uploaded</strong></p>
+          <p class="text-muted">This organization did not upload any verification documents during registration.</p>
+        </div>
+      </div>
+
+
+      <!-- Verification Actions -->
+      <div class="card" *ngIf="!organization.verified">
+        <div class="card-header">
+          <h3>Verification Actions</h3>
+        </div>
+
+        <form [formGroup]="remarksForm">
+          <div class="form-group">
+            <label class="form-label">Remarks (Optional)</label>
+            <textarea 
+              class="form-control" 
+              formControlName="remarks"
+              placeholder="Add any remarks or notes"
+              rows="4">
+            </textarea>
+          </div>
+
+          <div class="action-buttons">
+            <button 
+              class="btn btn-success" 
+              (click)="verifyOrganization()"
+              [disabled]="processing">
+              <span *ngIf="!processing">✓ Verify Organization</span>
+              <span *ngIf="processing">Processing...</span>
+            </button>
+            <button 
+              class="btn btn-danger" 
+              (click)="rejectOrganization()"
+              [disabled]="processing">
+              ✗ Reject Verification
+            </button>
+          </div>
+        </form>
+      </div>
+
+      <!-- Verification Guidelines -->
+      <div class="card guidelines-card" *ngIf="!organization.verified">
+        <div class="card-header">
+          <h3>📋 Verification Guidelines</h3>
+        </div>
+
+        <div class="guidelines-content">
+          <h4>Before Verifying, Please Check:</h4>
+          <ul>
+            <li>✓ Organization name matches registration documents</li>
+            <li>✓ Registration number is valid and verifiable</li>
+            <li>✓ Email address is valid and operational</li>
+            <li>✓ Contact phone number is reachable</li>
+            <li>✓ Address is complete and valid</li>
+            <li>✓ Organization has legitimate business purpose</li>
+          </ul>
+
+          <div class="warning-box">
+            <strong>⚠️ Important:</strong> Once verified, the organization will be able to register employees and create payment requests. Ensure all information is accurate.
+          </div>
+        </div>
+      </div>
+
+    </div>
+
+    <app-loader *ngIf="processing"></app-loader>
+  </div>
+</div>

@@ -1,0 +1,125 @@
+<app-navbar></app-navbar>
+<app-sidebar></app-sidebar>
+
+<div class="main-content">
+  <div class="container">
+    <!-- Header -->
+    <div class="page-header">
+      <div>
+        <h1>Organizations Management</h1>
+        <p>View and verify registered organizations</p>
+      </div>
+    </div>
+
+    <!-- Stats -->
+    <div class="stats-grid">
+      <div class="stat-card">
+        <div class="stat-icon blue">🏢</div>
+        <div class="stat-info">
+          <h3>{{ organizations.length }}</h3>
+          <p>Total Organizations</p>
+        </div>
+      </div>
+
+      <div class="stat-card">
+        <div class="stat-icon green">✓</div>
+        <div class="stat-info">
+          <h3>{{ verifiedCount }}</h3>
+          <p>Verified</p>
+        </div>
+      </div>
+
+      <div class="stat-card">
+        <div class="stat-icon orange">⏳</div>
+        <div class="stat-info">
+          <h3>{{ pendingCount }}</h3>
+          <p>Pending Verification</p>
+        </div>
+      </div>
+
+      <!-- ✅ NEW: Rejected Stat Card -->
+      <div class="stat-card">
+        <div class="stat-icon red">✗</div>
+        <div class="stat-info">
+          <h3>{{ rejectedCount }}</h3>
+          <p>Rejected</p>
+        </div>
+      </div>
+    </div>
+
+    <!-- Filters -->
+    <div class="filters-section">
+      <input 
+        type="text" 
+        class="search-input" 
+        placeholder="Search by name, email, or registration number..."
+        [(ngModel)]="searchTerm">
+
+      <!-- ✅ UPDATED: Added (change) event -->
+      <select class="filter-select" [(ngModel)]="selectedFilter" (change)="onFilterChange()">
+        <option *ngFor="let filter of filterOptions" [value]="filter">
+          {{ filter }}
+        </option>
+      </select>
+    </div>
+
+    <!-- Loading -->
+    <div *ngIf="loading" class="loading-state">
+      <div class="spinner"></div>
+      <p>Loading organizations...</p>
+    </div>
+
+    <!-- Organizations Table -->
+    <div *ngIf="!loading" class="card">
+      <div class="table-responsive">
+        <table class="table">
+          <thead>
+            <tr>
+              <th>ID</th>
+              <th>Organization Name</th>
+              <th>Email</th>
+              <th>Registration No.</th>
+              <th>Phone</th>
+              <th>Status</th>
+              <th>Registered Date</th>
+              <th>Actions</th>
+            </tr>
+          </thead>
+          <tbody>
+            <tr *ngFor="let org of filteredOrganizations">
+              <td>#{{ org.id }}</td>
+              <td><strong>{{ org.name }}</strong></td>
+              <td>{{ org.email }}</td>
+              <td>{{ org.registrationNumber }}</td>
+              <td>{{ org.contactPhone }}</td>
+              <td>
+                <!-- ✅ UPDATED: Dynamic status badge based on userStatus -->
+                <span class="badge" 
+                      [class.badge-success]="org.verified" 
+                      [class.badge-warning]="!org.verified && org.userStatus === 'PENDING'"
+                      [class.badge-danger]="!org.verified && org.userStatus === 'INACTIVE'">
+                  {{ org.verified ? 'VERIFIED' : (org.userStatus === 'INACTIVE' ? 'REJECTED' : 'PENDING') }}
+                </span>
+              </td>
+              <td>{{ org.createdAt | date: 'dd MMM yyyy' }}</td>
+              <td>
+                <div class="action-buttons">
+                  <a 
+                    [routerLink]="['/admin/organizations', org.id]" 
+                    class="btn-action btn-view"
+                    title="View & Verify">
+                    👁️
+                  </a>
+                </div>
+              </td>
+            </tr>
+          </tbody>
+        </table>
+      </div>
+
+      <div *ngIf="filteredOrganizations.length === 0" class="no-results">
+        <p>No organizations found</p>
+      </div>
+    </div>
+  </div>
+</div>

@@ -1,0 +1,145 @@
+<app-navbar></app-navbar>
+
+<div class="dashboard-container">
+  <!-- Header -->
+  <div class="dashboard-header">
+    <div>
+      <h1>Employee Dashboard</h1>
+      <p *ngIf="employeeProfile">Welcome, {{ employeeProfile.name }}</p>
+    </div>
+  </div>
+
+  <!-- Loading State -->
+  <div *ngIf="loading" class="loading-state">
+    <div class="spinner"></div>
+    <p>Loading your dashboard...</p>
+  </div>
+
+  <!-- Dashboard Content -->
+  <div *ngIf="!loading && employeeProfile" class="dashboard-content">
+    
+    <!-- Profile Summary Card -->
+    <div class="profile-card card">
+      <div class="profile-header">
+        <div class="profile-avatar">
+          <!-- ⭐ UPDATED: Show profile picture if available -->
+          <img 
+            *ngIf="employeeProfile.profilePictureUrl" 
+            [src]="employeeProfile.profilePictureUrl" 
+            alt="Profile Picture"
+            class="profile-picture-img">
+          <span *ngIf="!employeeProfile.profilePictureUrl">
+            {{ employeeProfile.name.charAt(0).toUpperCase() }}
+          </span>
+        </div>
+        <div class="profile-info">
+          <h2>{{ employeeProfile.name }}</h2>
+          <p>{{ employeeProfile.designation }} - {{ employeeProfile.department }}</p>
+          <span class="badge" [ngClass]="getVerificationClass(employeeProfile.accountVerificationStatus)">
+            {{ employeeProfile.accountVerificationStatus }}
+          </span>
+        </div>
+      </div>
+
+      <div class="profile-details">
+        <div class="detail-item">
+          <label>Employee ID</label>
+          <p>{{ employeeProfile.id }}</p>
+        </div>
+        <div class="detail-item">
+          <label>Email</label>
+          <p>{{ employeeProfile.email }}</p>
+        </div>
+        <div class="detail-item">
+          <label>Phone</label>
+          <p>{{ employeeProfile.phone }}</p>
+        </div>
+        <div class="detail-item">
+          <label>Organization</label>
+          <p>{{ employeeProfile.organizationName }}</p>
+        </div>
+        <div class="detail-item">
+          <label>Date of Joining</label>
+          <p>{{ employeeProfile.dateOfJoining | date: 'dd MMM yyyy' }}</p>
+        </div>
+        <div class="detail-item">
+          <label>Current Salary</label>
+          <p *ngIf="employeeProfile.currentSalary" class="salary-amount">
+            ₹{{ employeeProfile.currentSalary | number:'1.2-2' }}
+          </p>
+          <p *ngIf="!employeeProfile.currentSalary" class="text-muted">Not assigned</p>
+        </div>
+      </div>
+    </div>
+
+    <!-- Quick Actions -->
+    <div class="quick-actions-section">
+      <h2>Quick Actions</h2>
+      <div class="action-grid">
+        
+        <a routerLink="/employee/profile" class="action-card">
+          <div class="action-icon">👤</div>
+          <h3>My Profile</h3>
+          <p>View and update your profile</p>
+        </a>
+
+        <a routerLink="/employee/salary-history" class="action-card">
+          <div class="action-icon">💰</div>
+          <h3>Salary History</h3>
+          <p>View payment history and download slips</p>
+        </a>
+
+        <a routerLink="/employee/concerns" class="action-card">
+          <div class="action-icon">📢</div>
+          <h3>My Concerns</h3>
+          <p>Raise and track concerns</p>
+        </a>
+
+      </div>
+    </div>
+
+    <!-- Recent Salary Payments -->
+    <div class="card" *ngIf="recentSalaries.length > 0">
+      <div class="card-header">
+        <h3>Recent Salary Payments</h3>
+        <a routerLink="/employee/salary-history" class="link-btn">View All</a>
+      </div>
+
+      <div class="salary-list">
+        <div class="salary-item" *ngFor="let salary of recentSalaries">
+          <div class="salary-info">
+            <h4>{{ salary.month }} {{ salary.year }}</h4>
+            <p class="salary-date">
+              Paid on: {{ salary.paymentDate | date: 'dd MMM yyyy' }}
+            </p>
+          </div>
+          <div class="salary-amount-section">
+            <p class="amount">₹{{ salary.netSalary | number:'1.2-2' }}</p>
+            <span class="badge" [ngClass]="getPaymentStatusClass(salary.status)">
+              {{ salary.status }}
+            </span>
+          </div>
+          <div class="salary-actions">
+            <a 
+              *ngIf="salary.salarySlipUrl" 
+              [href]="salary.salarySlipUrl" 
+              target="_blank" 
+              class="btn-download">
+              📄 Download Slip
+            </a>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- No Salary Payments -->
+    <div class="card" *ngIf="recentSalaries.length === 0">
+      <div class="empty-state">
+        <div class="empty-icon">💰</div>
+        <h3>No Salary Payments Yet</h3>
+        <p>Your salary payments will appear here once processed</p>
+      </div>
+    </div>
+
+  </div>
+</div>

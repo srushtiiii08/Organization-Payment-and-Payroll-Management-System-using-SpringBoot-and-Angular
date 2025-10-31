@@ -1,0 +1,114 @@
+<app-navbar></app-navbar>
+<app-sidebar></app-sidebar>
+
+<div class="container">
+  <!-- Header -->
+  <div class="page-header">
+    <div>
+      <h1>Payment Requests Management</h1>
+      <p>Review and approve organization payment requests</p>
+    </div>
+  </div>
+
+  <!-- Stats Cards -->
+  <div class="stats-grid">
+    <div class="stat-card pending">
+      <div class="stat-icon">⏳</div>
+      <div class="stat-info">
+        <h3>{{ pendingCount }}</h3>
+        <p>Pending Requests</p>
+      </div>
+    </div>
+
+    <div class="stat-card amount">
+      <div class="stat-icon">💰</div>
+      <div class="stat-info">
+        <h3>₹{{ totalPendingAmount | number:'1.2-2' }}</h3>
+        <p>Total Pending Amount</p>
+      </div>
+    </div>
+  </div>
+
+  <!-- Filters -->
+  <div class="filter-section">
+    <label>Filter by Status:</label>
+    <select 
+      class="filter-select" 
+      [(ngModel)]="selectedStatus">
+      <option *ngFor="let status of statusOptions" [value]="status">
+        {{ status }}
+      </option>
+    </select>
+  </div>
+
+  <!-- Loading State -->
+  <div *ngIf="loading" class="loading-state">
+    <div class="spinner"></div>
+    <p>Loading payment requests...</p>
+  </div>
+
+  <!-- Empty State -->
+  <div *ngIf="!loading && paymentRequests.length === 0" class="empty-state">
+    <div class="empty-icon">💳</div>
+    <h3>No Payment Requests</h3>
+    <p>There are currently no payment requests to review</p>
+  </div>
+
+  <!-- Payment Requests Table -->
+  <div *ngIf="!loading && paymentRequests.length > 0" class="card">
+    <div class="table-responsive">
+      <table class="table">
+        <thead>
+          <tr>
+            <th>Request ID</th>
+            <th>Organization</th>
+            <th>Period</th>
+            <th>Type</th>
+            <th>Amount</th>
+            <th>Status</th>
+            <th>Created Date</th>
+            <th>Actions</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr *ngFor="let request of filteredRequests">
+            <td><strong>#{{ request.id }}</strong></td>
+            <td>{{ request.organizationName }}</td>
+            <td>
+              <strong>{{ request.month }} {{ request.year }}</strong>
+            </td>
+            <td>
+              <span class="type-badge">
+                {{ request.requestType }}
+              </span>
+            </td>
+            <td class="amount-cell">
+              ₹{{ request.totalAmount | number:'1.2-2' }}
+            </td>
+            <td>
+              <span class="badge" [ngClass]="getStatusClass(request.status)">
+                {{ request.status }}
+              </span>
+            </td>
+            <td>{{ request.createdAt | date: 'dd MMM yyyy' }}</td>
+            <td>
+              <div class="action-buttons">
+                <a 
+                  [routerLink]="['/admin/payment-requests', request.id]" 
+                  class="btn-action btn-view"
+                  title="View & Approve">
+                  👁️
+                </a>
+              </div>
+            </td>
+          </tr>
+        </tbody>
+      </table>
+    </div>
+
+    <!-- No Results -->
+    <div *ngIf="filteredRequests.length === 0" class="no-results">
+      <p>No payment requests found with status "{{ selectedStatus }}"</p>
+    </div>
+  </div>
+</div>

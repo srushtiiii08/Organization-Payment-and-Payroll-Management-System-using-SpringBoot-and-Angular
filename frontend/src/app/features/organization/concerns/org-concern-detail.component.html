@@ -1,0 +1,172 @@
+<app-navbar></app-navbar>
+<app-sidebar></app-sidebar>
+
+<div class="main-content">
+  <div class="container">
+    <!-- Header -->
+    <div class="page-header">
+      <div>
+        <h1>Concern Details</h1>
+        <p>View and respond to employee concern</p>
+      </div>
+      <a routerLink="/organization/concerns" class="btn btn-secondary">
+        ← Back to List
+      </a>
+    </div>
+
+    <!-- Loading -->
+    <div *ngIf="loading" class="loading-state">
+      <div class="spinner"></div>
+      <p>Loading concern details...</p>
+    </div>
+
+    <!-- Concern Details -->
+    <div *ngIf="!loading && concern" class="details-container">
+      
+      <!-- Status Card -->
+      <div class="card status-card">
+        <div class="status-header">
+          <div>
+            <h3>Current Status</h3>
+            <span class="badge large" [ngClass]="getStatusClass(concern.status)">
+              {{ concern.status }}
+            </span>
+            <span class="priority-badge large" [ngClass]="getPriorityClass(concern.priority)">
+              {{ concern.priority }} PRIORITY
+            </span>
+          </div>
+        </div>
+
+        <!-- Status Actions -->
+        <div class="status-actions" *ngIf="concern.status !== ConcernStatus.CLOSED">
+          <button 
+            *ngIf="concern.status === ConcernStatus.OPEN"
+            class="btn btn-info" 
+            (click)="updateStatus(ConcernStatus.IN_PROGRESS)"
+            [disabled]="processing">
+            Mark as In Progress
+          </button>
+          <button 
+            *ngIf="concern.status === ConcernStatus.IN_PROGRESS"
+            class="btn btn-success" 
+            (click)="updateStatus(ConcernStatus.RESOLVED)"
+            [disabled]="processing">
+            Mark as Resolved
+          </button>
+          <button 
+            class="btn btn-secondary" 
+            (click)="updateStatus(ConcernStatus.CLOSED)"
+            [disabled]="processing">
+            Close Concern
+          </button>
+        </div>
+      </div>
+
+      <!-- Concern Information -->
+      <div class="card">
+        <div class="card-header">
+          <h3>Concern Information</h3>
+        </div>
+
+        <div class="info-grid">
+          <div class="info-item">
+            <label>Concern ID</label>
+            <p>#{{ concern.id }}</p>
+          </div>
+
+          <div class="info-item">
+            <label>Employee Name</label>
+            <p><strong>{{ concern.employeeName }}</strong></p>
+          </div>
+
+          <div class="info-item">
+            <label>Employee Email</label>
+            <p>{{ concern.employeeEmail }}</p>
+          </div>
+
+          <div class="info-item">
+            <label>Date Raised</label>
+            <p>{{ concern.createdAt | date: 'dd MMM yyyy, hh:mm a' }}</p>
+          </div>
+
+          <div class="info-item full-width">
+            <label>Subject</label>
+            <p class="subject-text">{{ concern.subject }}</p>
+          </div>
+
+          <div class="info-item full-width">
+            <label>Description</label>
+            <p class="description-text">{{ concern.description }}</p>
+          </div>
+
+          <div class="info-item full-width" *ngIf="concern.attachmentUrl">
+            <label>Attachment</label>
+            <p>
+              <a [href]="concern.attachmentUrl" target="_blank" class="attachment-link">
+                📎 View Attachment
+              </a>
+            </p>
+          </div>
+        </div>
+      </div>
+
+      <!-- Response Section -->
+      <div class="card" *ngIf="concern.response">
+        <div class="card-header success">
+          <h3>✓ Organization Response</h3>
+        </div>
+
+        <div class="response-content">
+          <p>{{ concern.response }}</p>
+          <div class="response-meta">
+            <span *ngIf="concern.respondedByName">Responded by: {{ concern.respondedByName }}</span>
+            <span *ngIf="concern.respondedAt">{{ concern.respondedAt | date: 'dd MMM yyyy, hh:mm a' }}</span>
+          </div>
+        </div>
+      </div>
+
+      <!-- Response Form -->
+      <div class="card" *ngIf="!concern.response && concern.status !== ConcernStatus.CLOSED">
+        <div class="card-header">
+          <h3>Submit Response</h3>
+        </div>
+
+        <form [formGroup]="responseForm" (ngSubmit)="submitResponse()">
+          <div class="form-group">
+            <label class="form-label" for="response">
+              Your Response <span class="required">*</span>
+            </label>
+            <textarea 
+              id="response"
+              class="form-control" 
+              formControlName="response"
+              placeholder="Provide a detailed response to the employee's concern"
+              rows="6"
+              [class.error]="responseForm.get('response')?.invalid && responseForm.get('response')?.touched">
+            </textarea>
+            
+            <div class="error-message" 
+                 *ngIf="responseForm.get('response')?.invalid && responseForm.get('response')?.touched">
+              <span *ngIf="responseForm.get('response')?.errors?.['required']">
+                Response is required
+              </span>
+              <span *ngIf="responseForm.get('response')?.errors?.['minlength']">
+                Response must be at least 20 characters
+              </span>
+            </div>
+          </div>
+
+          <div class="form-actions">
+            <button type="submit" class="btn btn-primary" [disabled]="processing">
+              <span *ngIf="!processing">Submit Response</span>
+              <span *ngIf="processing">Submitting...</span>
+            </button>
+          </div>
+        </form>
+      </div>
+
+    </div>
+
+    <app-loader *ngIf="processing"></app-loader>
+  </div>
+</div>

@@ -1,0 +1,319 @@
+<app-navbar></app-navbar>
+<app-sidebar></app-sidebar>
+
+<div class="container">
+  <!-- Header -->
+  <div class="page-header">
+    <div>
+      <h1>Create Payment Request</h1>
+      <p>Select payment type and configure details</p>
+    </div>
+    <button class="btn btn-secondary" (click)="cancel()">
+      ← Back
+    </button>
+  </div>
+
+  <!-- Form Card -->
+  <div class="card">
+    <form [formGroup]="requestForm" (ngSubmit)="onSubmit()">
+      
+      <!-- ⭐ PAYMENT TYPE SELECTION -->
+      <div class="form-section">
+        <h3 class="section-title">💳 Payment Type</h3>
+        
+        <div class="payment-type-selector">
+          <div 
+            class="payment-type-card" 
+            [class.selected]="selectedPaymentType === PaymentRequestType.SALARY_DISBURSEMENT"
+            (click)="selectPaymentType(PaymentRequestType.SALARY_DISBURSEMENT)">
+            <div class="type-icon">💰</div>
+            <h4>Salary Disbursement</h4>
+            <p>Pay salaries to employees for a specific month</p>
+          </div>
+
+          <div 
+            class="payment-type-card" 
+            [class.selected]="selectedPaymentType === PaymentRequestType.VENDOR_PAYMENT"
+            (click)="selectPaymentType(PaymentRequestType.VENDOR_PAYMENT)">
+            <div class="type-icon">📦</div>
+            <h4>Vendor Payment</h4>
+            <p>Pay vendors for services or invoices</p>
+          </div>
+        </div>
+      </div>
+
+      <!-- Period Selection -->
+      <div class="form-section">
+        <h3 class="section-title">📅 Payment Period</h3>
+        
+        <div class="form-row">
+          <div class="form-group">
+            <label class="form-label" for="month">
+              Month <span class="required">*</span>
+            </label>
+            <select 
+              id="month"
+              class="form-control" 
+              formControlName="month">
+              <option *ngFor="let month of months" [value]="month">
+                {{ month }}
+              </option>
+            </select>
+          </div>
+
+          <div class="form-group">
+            <label class="form-label" for="year">
+              Year <span class="required">*</span>
+            </label>
+            <select 
+              id="year"
+              class="form-control" 
+              formControlName="year">
+              <option *ngFor="let year of years" [value]="year">
+                {{ year }}
+              </option>
+            </select>
+          </div>
+        </div>
+
+        <div class="form-group">
+          <label class="form-label" for="remarks">
+            Remarks (Optional)
+          </label>
+          <textarea 
+            id="remarks"
+            class="form-control" 
+            formControlName="remarks"
+            placeholder="Add any additional notes or remarks"
+            rows="2">
+          </textarea>
+        </div>
+      </div>
+
+      <!-- ========================================
+           SALARY DISBURSEMENT SECTION
+           ======================================== -->
+      <div *ngIf="selectedPaymentType === PaymentRequestType.SALARY_DISBURSEMENT">
+        <div class="form-section">
+          <div class="section-header">
+            <h3 class="section-title">👥 Select Employees</h3>
+            <button 
+              type="button" 
+              class="btn-select-all"
+              (click)="selectAllEmployees()">
+              {{ selectedEmployees.size === employees.length ? 'Deselect All' : 'Select All' }}
+            </button>
+          </div>
+
+          <!-- Loading State -->
+          <div *ngIf="loading" class="loading-state">
+            <div class="spinner"></div>
+            <p>Loading employees...</p>
+          </div>
+
+          <!-- Empty State -->
+          <div *ngIf="!loading && employees.length === 0" class="empty-state">
+            <div class="empty-icon">👥</div>
+            <h4>No Eligible Employees</h4>
+            <p>No active employees with verified bank accounts and salary structures found.</p>
+            <small>Employees must have:</small>
+            <ul style="text-align: left; display: inline-block; margin-top: 10px;">
+              <li>✓ Active status</li>
+              <li>✓ Verified bank account</li>
+              <li>✓ Active salary structure</li>
+            </ul>
+          </div>
+
+          <!-- Employee List -->
+          <div *ngIf="!loading && employees.length > 0" class="employee-list">
+            <div 
+              class="employee-item" 
+              *ngFor="let employee of employees"
+              [class.selected]="selectedEmployees.has(employee.id)"
+              (click)="toggleEmployee(employee.id)">
+              
+              <div class="employee-checkbox">
+                <input 
+                  type="checkbox" 
+                  [checked]="selectedEmployees.has(employee.id)"
+                  (click)="$event.stopPropagation()">
+              </div>
+
+              <div class="employee-info">
+                <h4>{{ employee.name }}</h4>
+                <p>{{ employee.designation }} - {{ employee.department }}</p>
+                <span class="employee-email">✓ Bank Account Verified</span>
+              </div>
+
+              <div class="employee-salary">
+                <label>Net Salary</label>
+                <p class="amount" *ngIf="employee.currentSalary">
+                  ₹{{ employee.currentSalary | number:'1.2-2' }}
+                </p>
+              </div>
+            </div>
+          </div>
+
+          <!-- Selection Summary -->
+          <div *ngIf="selectedEmployees.size > 0" class="selection-summary">
+            <div class="summary-item">
+              <label>Selected Employees</label>
+              <p>{{ selectedEmployees.size }}</p>
+            </div>
+            <div class="summary-item highlight">
+              <label>Total Amount</label>
+              <p class="total-amount">₹{{ totalSalaryAmount | number:'1.2-2' }}</p>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- ========================================
+           VENDOR PAYMENT SECTION
+           ======================================== -->
+      <div *ngIf="selectedPaymentType === PaymentRequestType.VENDOR_PAYMENT">
+        <!-- Vendor Selection -->
+        <div class="form-section">
+          <h3 class="section-title">🏢 Select Vendor</h3>
+
+          <!-- Empty State -->
+          <div *ngIf="vendors.length === 0" class="empty-state">
+            <div class="empty-icon">🏢</div>
+            <h4>No Active Vendors</h4>
+            <p>Please add vendors before creating vendor payments</p>
+            <a routerLink="/organization/vendors/create" class="btn btn-primary">
+              Add Vendor
+            </a>
+          </div>
+
+          <!-- Vendor List -->
+          <div *ngIf="vendors.length > 0" class="vendor-list">
+            <div 
+              class="vendor-item" 
+              *ngFor="let vendor of vendors"
+              [class.selected]="selectedVendor?.id === vendor.id"
+              (click)="selectVendor(vendor)">
+              
+              <div class="vendor-radio">
+                <input 
+                  type="radio" 
+                  [checked]="selectedVendor?.id === vendor.id"
+                  (click)="$event.stopPropagation()">
+              </div>
+
+              <div class="vendor-info">
+                <h4>{{ vendor.name }}</h4>
+                <p>{{ vendor.serviceType }}</p>
+                <span class="vendor-email">{{ vendor.email }}</span>
+              </div>
+
+              <div class="vendor-status">
+                <span class="badge badge-success">ACTIVE</span>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <!-- Vendor Payment Details -->
+        <div class="form-section" *ngIf="selectedVendor">
+          <h3 class="section-title">📄 Payment Details</h3>
+
+          <div class="form-row">
+            <div class="form-group">
+              <label class="form-label" for="vendorAmount">
+                Payment Amount <span class="required">*</span>
+              </label>
+              <div class="input-with-icon">
+                <span class="currency-symbol">₹</span>
+                <input 
+                  type="number" 
+                  id="vendorAmount"
+                  class="form-control with-icon" 
+                  formControlName="vendorAmount"
+                  placeholder="0.00"
+                  [class.error]="f['vendorAmount'].invalid && f['vendorAmount'].touched">
+              </div>
+              <div class="error-message" *ngIf="f['vendorAmount'].invalid && f['vendorAmount'].touched">
+                <span *ngIf="f['vendorAmount'].errors?.['required']">Amount is required</span>
+                <span *ngIf="f['vendorAmount'].errors?.['min']">Amount must be greater than 0</span>
+              </div>
+            </div>
+
+            <div class="form-group">
+              <label class="form-label" for="invoiceNumber">
+                Invoice Number <span class="required">*</span>
+              </label>
+              <input 
+                type="text" 
+                id="invoiceNumber"
+                class="form-control" 
+                formControlName="invoiceNumber"
+                placeholder="INV-2025-001"
+                [class.error]="f['invoiceNumber'].invalid && f['invoiceNumber'].touched">
+              <div class="error-message" *ngIf="f['invoiceNumber'].invalid && f['invoiceNumber'].touched">
+                Invoice number is required
+              </div>
+            </div>
+          </div>
+
+          <div class="form-row">
+            <div class="form-group">
+              <label class="form-label" for="invoiceDate">
+                Invoice Date <span class="required">*</span>
+              </label>
+              <input 
+                type="date" 
+                id="invoiceDate"
+                class="form-control" 
+                formControlName="invoiceDate"
+                [class.error]="f['invoiceDate'].invalid && f['invoiceDate'].touched">
+              <div class="error-message" *ngIf="f['invoiceDate'].invalid && f['invoiceDate'].touched">
+                Invoice date is required
+              </div>
+            </div>
+
+            <div class="form-group">
+              <label class="form-label" for="description">
+                Description
+              </label>
+              <input 
+                type="text" 
+                id="description"
+                class="form-control" 
+                formControlName="description"
+                placeholder="Service or product description">
+            </div>
+          </div>
+
+          <!-- Vendor Payment Summary -->
+          <div class="selection-summary">
+            <div class="summary-item">
+              <label>Vendor</label>
+              <p>{{ selectedVendor.name }}</p>
+            </div>
+            <div class="summary-item highlight">
+              <label>Payment Amount</label>
+              <p class="total-amount">₹{{ f['vendorAmount'].value || 0 | number:'1.2-2' }}</p>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Form Actions -->
+      <div class="form-actions">
+        <button type="button" class="btn btn-secondary" (click)="cancel()">
+          Cancel
+        </button>
+        <button 
+          type="submit" 
+          class="btn btn-primary" 
+          [disabled]="loading">
+          <span *ngIf="!loading">Submit Payment Request</span>
+          <span *ngIf="loading">Submitting...</span>
+        </button>
+      </div>
+    </form>
+  </div>
+
+  <app-loader *ngIf="loading"></app-loader>
+</div>

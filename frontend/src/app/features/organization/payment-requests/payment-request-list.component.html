@@ -1,0 +1,107 @@
+<app-navbar></app-navbar>
+<app-sidebar></app-sidebar>
+
+<div class="container">
+  <!-- Header -->
+  <div class="page-header">
+    <div>
+      <h1>Payment Requests</h1>
+      <p>Manage your salary disbursement requests</p>
+    </div>
+    <a routerLink="/organization/payment-requests/create" class="btn btn-primary">
+      + Create New Request
+    </a>
+  </div>
+
+  <!-- Filters -->
+  <div class="filter-section">
+    <label>Filter by Status:</label>
+    <select 
+      class="filter-select" 
+      [(ngModel)]="selectedStatus"
+      (change)="loadPaymentRequests()">
+      <option *ngFor="let status of statusOptions" [value]="status">
+        {{ status }}
+      </option>
+    </select>
+  </div>
+
+  <!-- Loading State -->
+  <div *ngIf="loading" class="loading-state">
+    <div class="spinner"></div>
+    <p>Loading payment requests...</p>
+  </div>
+
+  <!-- Empty State -->
+  <div *ngIf="!loading && paymentRequests.length === 0" class="empty-state">
+    <div class="empty-icon">💳</div>
+    <h3>No Payment Requests Yet</h3>
+    <p>Create your first payment request to disburse salaries</p>
+    <a routerLink="/organization/payment-requests/create" class="btn btn-primary">
+      Create Payment Request
+    </a>
+  </div>
+
+  <!-- Payment Requests Table -->
+  <div *ngIf="!loading && paymentRequests.length > 0" class="card">
+    <div class="table-responsive">
+      <table class="table">
+        <thead>
+          <tr>
+            <th>Request ID</th>
+            <th>Period</th>
+            <th>Type</th>
+            <th>Amount</th>
+            <th>Status</th>
+            <th>Created Date</th>
+            <th>Actions</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr *ngFor="let request of filteredRequests">
+            <td>#{{ request.id }}</td>
+            <td>
+              <strong>{{ request.month }} {{ request.year }}</strong>
+            </td>
+            <td>
+              <span class="type-badge">
+                {{ request.requestType }}
+              </span>
+            </td>
+            <td class="amount-cell">
+              ₹{{ request.totalAmount | number:'1.2-2' }}
+            </td>
+            <td>
+              <span class="badge" [ngClass]="getStatusClass(request.status)">
+                {{ request.status }}
+              </span>
+            </td>
+            <td>{{ request.createdAt | date: 'dd MMM yyyy' }}</td>
+            <td>
+              <div class="action-buttons">
+                <a 
+                  [routerLink]="['/organization/payment-requests', request.id]" 
+                  class="btn-action btn-view"
+                  title="View Details">
+                  👁️
+                </a>
+                <button 
+                  *ngIf="request.status === PaymentRequestStatus.PENDING"
+                  (click)="deleteRequest(request.id)" 
+                  class="btn-action btn-delete"
+                  title="Delete">
+                  🗑️
+                </button>
+              </div>
+            </td>
+          </tr>
+        </tbody>
+      </table>
+    </div>
+
+    <!-- No Results -->
+    <div *ngIf="filteredRequests.length === 0" class="no-results">
+      <p>No payment requests found with status "{{ selectedStatus }}"</p>
+    </div>
+  </div>
+</div>

@@ -1,0 +1,132 @@
+<app-navbar></app-navbar>
+<app-sidebar></app-sidebar>
+
+<div class="main-content">
+  <div class="container">
+    <!-- Header -->
+    <div class="page-header">
+      <div>
+        <h1>Raise a Concern</h1>
+        <p>Describe your concern in detail</p>
+      </div>
+      <button class="btn btn-secondary" (click)="cancel()">
+        ← Back
+      </button>
+    </div>
+
+    <!-- Form Card -->
+    <div class="card">
+      <form [formGroup]="concernForm" (ngSubmit)="onSubmit()">
+        
+        <!-- Subject -->
+        <div class="form-group">
+          <label class="form-label" for="subject">
+            Subject <span class="required">*</span>
+          </label>
+          <input 
+            type="text" 
+            id="subject"
+            class="form-control" 
+            formControlName="subject"
+            placeholder="Brief description of your concern"
+            [class.error]="f['subject'].invalid && f['subject'].touched">
+          
+          <div class="error-message" *ngIf="f['subject'].invalid && f['subject'].touched">
+            <span *ngIf="f['subject'].errors?.['required']">Subject is required</span>
+            <span *ngIf="f['subject'].errors?.['minlength']">Subject must be at least 5 characters</span>
+          </div>
+        </div>
+
+        <!-- Priority -->
+        <div class="form-group">
+          <label class="form-label" for="priority">
+            Priority <span class="required">*</span>
+          </label>
+          <select 
+            id="priority"
+            class="form-control" 
+            formControlName="priority">
+            <option *ngFor="let p of priorities" [value]="p.value">
+              {{ p.label }}
+            </option>
+          </select>
+        </div>
+
+        <!-- Description -->
+        <div class="form-group">
+          <label class="form-label" for="description">
+            Detailed Description <span class="required">*</span>
+          </label>
+          <textarea 
+            id="description"
+            class="form-control" 
+            formControlName="description"
+            placeholder="Provide detailed information about your concern"
+            rows="8"
+            [class.error]="f['description'].invalid && f['description'].touched">
+          </textarea>
+          
+          <div class="error-message" *ngIf="f['description'].invalid && f['description'].touched">
+            <span *ngIf="f['description'].errors?.['required']">Description is required</span>
+            <span *ngIf="f['description'].errors?.['minlength']">Description must be at least 20 characters</span>
+          </div>
+        </div>
+
+        <!-- File Upload -->
+        <div class="form-group">
+          <label class="form-label">
+            Attachment (Optional)
+          </label>
+          
+          <div class="file-upload-area" *ngIf="!uploadedFileUrl">
+            <input 
+              type="file" 
+              id="fileInput" 
+              accept="image/*,.pdf"
+              (change)="onFileSelect($event)"
+              [disabled]="uploading"
+              style="display: none;">
+            
+            <label for="fileInput" class="file-upload-label">
+              <span *ngIf="!uploading">📎 Choose File (Max 5MB)</span>
+              <span *ngIf="uploading">
+                <span class="upload-spinner"></span> Uploading...
+              </span>
+            </label>
+            
+            <p class="file-hint">Supported formats: JPG, PNG, PDF</p>
+          </div>
+
+          <div class="file-preview" *ngIf="uploadedFileUrl">
+            <div class="file-info">
+              <span class="file-icon">📄</span>
+              <span class="file-name">{{ selectedFile?.name }}</span>
+            </div>
+            <button type="button" class="btn-remove" (click)="removeFile()">
+              ✕ Remove
+            </button>
+          </div>
+        </div>
+
+        <!-- Info Box -->
+        <div class="info-box">
+          <strong>ℹ️ Note:</strong> Your concern will be reviewed by the organization management. 
+          You will be notified once there is a response.
+        </div>
+
+        <!-- Form Actions -->
+        <div class="form-actions">
+          <button type="button" class="btn btn-secondary" (click)="cancel()">
+            Cancel
+          </button>
+          <button type="submit" class="btn btn-primary" [disabled]="loading || uploading">
+            <span *ngIf="!loading">Submit Concern</span>
+            <span *ngIf="loading">Submitting...</span>
+          </button>
+        </div>
+      </form>
+    </div>
+
+    <app-loader *ngIf="loading"></app-loader>
+  </div>
+</div>

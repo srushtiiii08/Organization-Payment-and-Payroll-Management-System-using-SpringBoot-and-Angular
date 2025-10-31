@@ -1,0 +1,164 @@
+<app-navbar></app-navbar>
+<app-sidebar></app-sidebar>
+
+<div class="main-content">
+  <div class="container">
+    <!-- Header -->
+    <div class="page-header">
+      <h1>My Profile</h1>
+      <p>View and manage your personal information</p>
+    </div>
+
+    <!-- Loading -->
+    <div *ngIf="loading" class="loading-state">
+      <div class="spinner"></div>
+      <p>Loading profile...</p>
+    </div>
+
+    <!-- Profile Content -->
+    <div *ngIf="!loading && employeeProfile" class="profile-container">
+      
+      <!-- Profile Header Card -->
+      <div class="card profile-header-card">
+        <div class="profile-picture-section">
+          <div class="profile-picture">
+            <img 
+              *ngIf="employeeProfile.profilePictureUrl" 
+              [src]="employeeProfile.profilePictureUrl" 
+              alt="Profile Picture">
+            <div *ngIf="!employeeProfile.profilePictureUrl" class="profile-avatar">
+              {{ employeeProfile.name.charAt(0).toUpperCase() }}
+            </div>
+            
+            <div class="upload-overlay">
+              <label for="fileInput" class="upload-btn">
+                <span *ngIf="!uploading">📷 Change Photo</span>
+                <span *ngIf="uploading">Uploading...</span>
+              </label>
+              <input 
+                type="file" 
+                id="fileInput" 
+                accept="image/*" 
+                (change)="onFileSelect($event)"
+                [disabled]="uploading"
+                style="display: none;">
+            </div>
+          </div>
+
+          <div class="profile-info">
+            <h2>{{ employeeProfile.name }}</h2>
+            <p class="designation">{{ employeeProfile.designation }} - {{ employeeProfile.department }}</p>
+            <span class="badge" [ngClass]="getVerificationClass(employeeProfile.accountVerificationStatus)">
+              {{ employeeProfile.accountVerificationStatus }}
+            </span>
+          </div>
+        </div>
+      </div>
+
+      <!-- Personal Information -->
+      <div class="card">
+        <div class="card-header">
+          <h3>Personal Information</h3>
+        </div>
+
+        <div class="info-grid">
+          <div class="info-item">
+            <label>Employee ID</label>
+            <p>{{ employeeProfile.id }}</p>
+          </div>
+
+          <div class="info-item">
+            <label>Full Name</label>
+            <p>{{ employeeProfile.name }}</p>
+          </div>
+
+          <div class="info-item">
+            <label>Email Address</label>
+            <p>{{ employeeProfile.email }}</p>
+          </div>
+
+          <div class="info-item">
+            <label>Phone Number</label>
+            <p>{{ employeeProfile.phone }}</p>
+          </div>
+
+          <div class="info-item full-width">
+            <label>Address</label>
+            <p>{{ employeeProfile.address }}</p>
+          </div>
+        </div>
+      </div>
+
+      <!-- Employment Details -->
+      <div class="card">
+        <div class="card-header">
+          <h3>Employment Details</h3>
+        </div>
+
+        <div class="info-grid">
+          <div class="info-item">
+            <label>Organization</label>
+            <p>{{ employeeProfile.organizationName }}</p>
+          </div>
+
+          <div class="info-item">
+            <label>Department</label>
+            <p>{{ employeeProfile.department }}</p>
+          </div>
+
+          <div class="info-item">
+            <label>Designation</label>
+            <p>{{ employeeProfile.designation }}</p>
+          </div>
+
+          <div class="info-item">
+            <label>Date of Joining</label>
+            <p>{{ employeeProfile.dateOfJoining | date: 'dd MMMM yyyy' }}</p>
+          </div>
+
+          <div class="info-item">
+            <label>Current Salary</label>
+            <p class="salary-amount" *ngIf="employeeProfile.currentSalary">
+              ₹{{ employeeProfile.currentSalary | number:'1.2-2' }}
+            </p>
+            <p *ngIf="!employeeProfile.currentSalary" class="text-muted">Not assigned</p>
+          </div>
+        </div>
+      </div>
+
+      <!-- Bank Details -->
+      <div class="card">
+        <div class="card-header">
+          <h3>Bank Account Details</h3>
+        </div>
+
+        <div class="info-grid">
+          <div class="info-item">
+            <label>Bank Name</label>
+            <p>{{ employeeProfile.bankName }}</p>
+          </div>
+
+          <div class="info-item">
+            <label>Account Number</label>
+            <p>{{ employeeProfile.bankAccountNumber }}</p>
+          </div>
+
+          <div class="info-item">
+            <label>IFSC Code</label>
+            <p>{{ employeeProfile.ifscCode }}</p>
+          </div>
+
+          <div class="info-item">
+            <label>Account Status</label>
+            <p>
+              <span class="badge" [ngClass]="getVerificationClass(employeeProfile.accountVerificationStatus)">
+                {{ employeeProfile.accountVerificationStatus }}
+              </span>
+            </p>
+          </div>
+        </div>
+      </div>
+
+    </div>
+  </div>
+</div>

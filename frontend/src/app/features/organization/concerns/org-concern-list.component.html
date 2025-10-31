@@ -1,0 +1,140 @@
+<app-navbar></app-navbar>
+<app-sidebar></app-sidebar>
+
+<div class="main-content">
+  <div class="container">
+    <!-- Page Header -->
+    <div class="page-header">
+      <h1>Community Concerns</h1>
+      <p>Monitor and manage community-reported issues</p>
+    </div>
+
+    <!-- Statistics Grid -->
+    <div class="stats-grid">
+      <div class="stat-card">
+        <div class="stat-icon orange">📊</div>
+        <div class="stat-info">
+          <h3>{{ stats.total }}</h3>
+          <p>Total Concerns</p>
+        </div>
+      </div>
+
+      <div class="stat-card">
+        <div class="stat-icon blue">⚡</div>
+        <div class="stat-info">
+          <h3>{{ stats.pending }}</h3>
+          <p>Pending Review</p>
+        </div>
+      </div>
+
+      <div class="stat-card">
+        <div class="stat-icon green">⏳</div>
+        <div class="stat-info">
+          <h3>{{ stats.inProgress }}</h3>
+          <p>In Progress</p>
+        </div>
+      </div>
+
+      <div class="stat-card">
+        <div class="stat-icon orange">🚨</div>
+        <div class="stat-info">
+          <h3>{{ stats.critical }}</h3>
+          <p>Critical Priority</p>
+        </div>
+      </div>
+    </div>
+
+    <!-- Filter Section -->
+    <div class="filter-section">
+      <label for="filter">Filter by:</label>
+      <select 
+        id="filter" 
+        class="filter-select"
+        [(ngModel)]="selectedFilter"
+        (change)="onFilterChange($event)">
+        <option value="ALL">All Concerns</option>
+        <option value="CRITICAL">Critical Priority</option>
+        <option value="HIGH">High Priority</option>
+        <option value="PENDING">Pending</option>
+        <option value="IN_PROGRESS">In Progress</option>
+        <option value="RESOLVED">Resolved</option>
+      </select>
+    </div>
+
+    <!-- Loading State -->
+    <div *ngIf="loading" class="loading-state">
+      <div class="spinner"></div>
+      <p>Loading concerns...</p>
+    </div>
+
+    <!-- Empty State -->
+    <div *ngIf="!loading && filteredConcerns.length === 0 && concerns.length === 0" class="empty-state">
+      <div class="empty-icon">📭</div>
+      <h3>No Concerns Yet</h3>
+      <p>When community members report concerns, they will appear here.</p>
+    </div>
+
+    <!-- No Results for Filter -->
+    <div *ngIf="!loading && filteredConcerns.length === 0 && concerns.length > 0" class="no-results">
+      <p>No concerns match the selected filter.</p>
+    </div>
+
+    <!-- Concerns List -->
+    <div *ngIf="!loading && filteredConcerns.length > 0" class="concerns-list">
+      <div 
+        *ngFor="let concern of filteredConcerns" 
+        class="concern-card"
+        [ngClass]="getPriorityClass(concern.priority)">
+        
+        <!-- Priority Indicator Dot -->
+        <div 
+          class="priority-indicator"
+          [ngClass]="getPriorityIndicatorClass(concern.priority)"
+          [title]="formatPriority(concern.priority) + ' Priority'">
+        </div>
+
+        <!-- Concern Header -->
+        <div class="concern-header">
+          <div class="concern-title-section">
+            <h4>{{ concern.title }}</h4>
+            <span 
+              class="priority-badge"
+              [ngClass]="getPriorityClass(concern.priority)">
+              {{ formatPriority(concern.priority) }}
+            </span>
+          </div>
+        </div>
+
+        <!-- Concern Description -->
+        <p>{{ concern.description }}</p>
+
+        <!-- Concern Metadata -->
+        <div class="concern-meta">
+          <span>
+            <strong>Category:</strong> {{ concern.category }}
+          </span>
+          <span>
+            <strong>Reported:</strong> {{ formatDate(concern.createdAt) }}
+          </span>
+          <span>
+            <strong>By:</strong> {{ concern.reportedBy }}
+          </span>
+        </div>
+
+        <!-- Concern Actions -->
+        <div class="concern-actions">
+          <span 
+            class="badge"
+            [ngClass]="getStatusBadgeClass(concern.status)">
+            {{ formatStatus(concern.status) }}
+          </span>
+          <button 
+            class="btn btn-primary" 
+            style="margin-left: 10px;"
+            (click)="viewConcernDetail(concern.id)">
+            View & Respond
+          </button>
+        </div>
+      </div>
+    </div>
+  </div>
